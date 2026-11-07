@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-black: #050505;
+  --color-brand-surface: #111111;
+  --color-brand-card: #171717;
+  --color-brand-card-hover: #1f1f1f;
+  --color-brand-yellow: #F5D90A;
+  --color-brand-yellow-hover: #e5ca09;
+  --color-brand-muted: #A1A1AA;
+  --color-brand-border: rgba(255, 255, 255, 0.12);
+  --color-brand-border-glow: rgba(245, 217, 10, 0.35);
+
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+
+:root {
+  --background: #050505;
+  --foreground: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #050505;
+  color: #ffffff;
+  overflow-x: hidden;
+  max-width: 100vw;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: #050505;
+  color: #ffffff;
+  overflow-x: hidden;
+  max-width: 100vw;
+  font-family: var(--font-sans);
+  selection-background-color: #F5D90A;
+  selection-color: #050505;
+}
+
+::selection {
+  background-color: #F5D90A;
+  color: #050505;
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #222222;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #F5D90A;
+}
+
+/* Glass card reflection */
+.glass-panel {
+  background: rgba(23, 23, 23, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-panel-hover:hover {
+  border-color: rgba(245, 217, 10, 0.35);
+  box-shadow: 0 0 25px rgba(245, 217, 10, 0.08);
+}
+
+/* Subtle glow helpers */
+.glow-yellow-sm {
+  box-shadow: 0 0 20px rgba(245, 217, 10, 0.25);
+}
+
+.glow-yellow-lg {
+  box-shadow: 0 0 60px rgba(245, 217, 10, 0.15);
+}
+
+/* Radial ambient backlight */
+.ambient-yellow-aura {
+  background: radial-gradient(circle at center, rgba(245, 217, 10, 0.14) 0%, rgba(245, 217, 10, 0.04) 40%, transparent 70%);
+}
