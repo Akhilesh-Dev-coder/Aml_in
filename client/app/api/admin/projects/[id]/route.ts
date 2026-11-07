@@ -72,9 +72,9 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
     }
 
     // Attempt safe Cloudinary deletion if credentials & public ID exist
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    const apiKey = process.env.CLOUDINARY_API_KEY;
-    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "opkjlyme";
+    const apiKey = process.env.CLOUDINARY_API_KEY || "196638882792763";
+    const apiSecret = process.env.CLOUDINARY_API_SECRET || "_HinR8AUbHCL4OagENNkNjTYMqo";
 
     if (cloudName && apiKey && apiSecret) {
       cloudinary.config({

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const FALLBACK_MONGODB_URI =
+  "mongodb+srv://dravion456_db_user:98DnmK1AluBj6E8B@cluster0.2ghwqaj.mongodb.net/aml_portfolio?retryWrites=true&w=majority";
 
 interface MongooseCache {
   conn: typeof mongoose | null;
@@ -18,12 +19,16 @@ if (!global.mongooseCache) {
 }
 
 export async function connectToDatabase(): Promise<typeof mongoose | null> {
-  if (!MONGODB_URI) {
-    // If not configured yet, return null gracefully so fallback data can be served
+  const rawUri = process.env.MONGODB_URI || FALLBACK_MONGODB_URI;
+
+  if (!rawUri) {
     return null;
   }
 
-  if (cached.conn) {
+  // Strip accidental quotes that might be pasted in hosting environment dashboards
+  const uri = rawUri.trim().replace(/^["']|["']$/g, "");
+
+  if (cached.conn && mongoose.connection.readyState === 1) {
     return cached.conn;
   }
 
@@ -31,11 +36,11 @@ export async function connectToDatabase(): Promise<typeof mongoose | null> {
     const opts: mongoose.ConnectOptions = {
       bufferCommands: false,
       maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 8000,
       dbName: process.env.MONGODB_DB || "aml_portfolio",
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {
+    cached.promise = mongoose.connect(uri, opts).then((mongooseInstance) => {
       return mongooseInstance;
     });
   }
