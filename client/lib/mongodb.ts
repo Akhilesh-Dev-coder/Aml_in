@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 const FALLBACK_MONGODB_URI =
   "mongodb+srv://dravion456_db_user:98DnmK1AluBj6E8B@cluster0.2ghwqaj.mongodb.net/aml_portfolio?retryWrites=true&w=majority";
 
+export let lastMongoError: string | null = null;
+
 interface MongooseCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
@@ -19,38 +21,54 @@ if (!global.mongooseCache) {
 }
 
 export async function connectToDatabase(): Promise<typeof mongoose | null> {
+  // If already connected and socket is active, return immediately
+  if (mongoose.connection && mongoose.connection.readyState === 1) {
+    lastMongoError = null;
+    return mongoose;
+  }
+
   const rawUri = process.env.MONGODB_URI || FALLBACK_MONGODB_URI;
 
   if (!rawUri) {
+    lastMongoError = "MONGODB_URI environment variable is missing";
     return null;
   }
 
-  // Strip accidental quotes that might be pasted in hosting environment dashboards
+  // Strip accidental quotes pasted into hosting dashboard env vars
   const uri = rawUri.trim().replace(/^["']|["']$/g, "");
 
-  if (cached.conn && mongoose.connection.readyState === 1) {
-    return cached.conn;
-  }
-
-  if (!cached.promise) {
-    const opts: mongoose.ConnectOptions = {
-      bufferCommands: false,
-      maxPoolSize: 10,
-      serverSelectionTimeoutMS: 8000,
-      dbName: process.env.MONGODB_DB || "aml_portfolio",
-    };
-
-    cached.promise = mongoose.connect(uri, opts).then((mongooseInstance) => {
-      return mongooseInstance;
-    });
+  // If connection is in progress, wait for it
+  if (mongoose.connection && (mongoose.connection.readyState as number) === 2 && cached.promise) {
+    try {
+      await cached.promise;
+      if ((mongoose.connection.readyState as number) === 1) {
+        lastMongoError = null;
+        return mongoose;
+      }
+    } catch (e: any) {
+      cached.promise = null;
+      lastMongoError = e?.message || String(e);
+    }
   }
 
   try {
+    cached.promise = mongoose.connect(uri, {
+      maxPoolSize: 10,
+      minPoolSize: 1,
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
+      family: 4, // Force IPv4 to avoid cloud server DNS IPv6 stalls
+      dbName: process.env.MONGODB_DB || "aml_portfolio",
+    });
+
     cached.conn = await cached.promise;
+    lastMongoError = null;
     return cached.conn;
-  } catch (e) {
+  } catch (error: any) {
     cached.promise = null;
-    console.error("MongoDB connection error:", e);
+    cached.conn = null;
+    lastMongoError = error?.message || String(error);
+    console.error("MongoDB Atlas connection error:", lastMongoError);
     return null;
   }
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
-import { connectToDatabase } from "@/lib/mongodb";
+import { connectToDatabase, lastMongoError } from "@/lib/mongodb";
 import { Project } from "@/models/Project";
 import { v2 as cloudinary } from "cloudinary";
 import { getOptimizedVideoUrl, getOptimizedThumbnailUrl } from "@/lib/media";
@@ -19,7 +19,11 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     const { id } = await params;
     const db = await connectToDatabase();
     if (!db) {
-      return NextResponse.json({ error: "Database not connected" }, { status: 500 });
+      const err = lastMongoError || "Connection timed out or failed";
+      return NextResponse.json(
+        { error: `Database connection failed: ${err}. Ensure 0.0.0.0/0 is whitelisted in MongoDB Atlas Network Access.` },
+        { status: 500 }
+      );
     }
 
     const body = await req.json();
@@ -63,7 +67,11 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
     const { id } = await params;
     const db = await connectToDatabase();
     if (!db) {
-      return NextResponse.json({ error: "Database not connected" }, { status: 500 });
+      const err = lastMongoError || "Connection timed out or failed";
+      return NextResponse.json(
+        { error: `Database connection failed: ${err}. Ensure 0.0.0.0/0 is whitelisted in MongoDB Atlas Network Access.` },
+        { status: 500 }
+      );
     }
 
     const projectToDelete = await Project.findById(id);

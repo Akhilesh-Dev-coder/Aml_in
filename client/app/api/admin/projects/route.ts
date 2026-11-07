@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
-import { connectToDatabase } from "@/lib/mongodb";
+import { connectToDatabase, lastMongoError } from "@/lib/mongodb";
 import { Project } from "@/models/Project";
 import { getOptimizedVideoUrl, getOptimizedThumbnailUrl } from "@/lib/media";
 import { INITIAL_PROJECTS } from "@/lib/initialData";
@@ -61,10 +61,17 @@ export async function POST(req: NextRequest) {
 
     const db = await connectToDatabase();
     if (!db) {
-      return NextResponse.json(
-        { error: "Database not connected. Please set MONGODB_URI in environment variables." },
-        { status: 500 }
-      );
+      const err = lastMongoError || "Connection timed out or failed";
+      const isIpBlocked =
+        err.includes("ServerSelectionError") ||
+        err.includes("timed out") ||
+        err.includes("connection closed");
+
+      const errorMsg = isIpBlocked
+        ? `MongoDB Atlas blocked the connection: ${err}. Please ensure MongoDB Atlas Network Access has '0.0.0.0/0' (Allow access from anywhere) enabled so your hosted site can connect.`
+        : `Database connection failed: ${err}. Please check your MONGODB_URI.`;
+
+      return NextResponse.json({ error: errorMsg, details: err }, { status: 500 });
     }
 
     const body = await req.json();
