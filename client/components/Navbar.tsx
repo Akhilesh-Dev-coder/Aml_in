@@ -176,7 +176,7 @@ export default function Navbar() {
                   </span>
                 </div>
                 <span className="text-xs text-zinc-400 font-mono">
-                  Commercials &bull; Cinema &bull; 4K
+                  Commercials &bull; Cinema &bull; Direction
                 </span>
               </div>
             </div>

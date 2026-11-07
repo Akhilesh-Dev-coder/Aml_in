@@ -260,7 +260,7 @@ export default function ProjectViewerModal({
               </div>
 
               <div className="flex items-center gap-2 text-zinc-400">
-                <span>4K CINEMA MASTER</span>
+                <span>CINEMA MASTER</span>
               </div>
             </div>
           </div>

@@ -966,7 +966,7 @@ export default function ProjectShowcaseView({
                     <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center">
                       <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/70 border border-white/10 text-[11px] font-mono text-zinc-300 shadow-xl">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#F5D90A] animate-ping" />
-                        <span>Streaming 4K Reel...</span>
+                        <span>Streaming Cinema Reel...</span>
                       </div>
                     </div>
                   </div>
@@ -1125,7 +1125,7 @@ export default function ProjectShowcaseView({
 
                   <div className="flex items-center gap-3">
                     <span className="text-[11px] uppercase tracking-wider text-zinc-400 px-2 py-0.5 rounded bg-white/5 border border-white/10">
-                      4K PRORES MASTER
+                      CINEMA MASTER
                     </span>
 
                     <button
@@ -1296,7 +1296,7 @@ export default function ProjectShowcaseView({
                       )}
 
                       <span className="absolute bottom-1 right-1 text-[9px] font-mono px-1 rounded bg-black/80 text-zinc-300">
-                        {p.duration || "4K"}
+                        {p.duration || "Reel"}
                       </span>
                     </div>
 

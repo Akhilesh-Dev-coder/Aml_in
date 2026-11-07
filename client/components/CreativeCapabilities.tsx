@@ -28,8 +28,8 @@ const DISCIPLINES: Discipline[] = [
     title: "Product Commercials",
     tagline: "Clean 3D & Fine Details",
     description:
-      "Showcase products in 4K with clean motion, studio lighting, and zero set costs.",
-    highlights: ["4K Quality", "Smooth Motion", "Custom Audio"],
+      "Showcase products with clean motion, studio lighting, and zero set costs.",
+    highlights: ["Cinematic Visuals", "Smooth Motion", "Custom Audio"],
     icon: Video,
     colSpan: "lg:col-span-6",
   },
@@ -102,12 +102,12 @@ export default function CreativeCapabilities() {
 
             {/* Subtitle */}
             <p className="text-xs sm:text-base text-zinc-400 font-light max-w-xl mt-2.5 sm:mt-3 leading-relaxed">
-              Cinema-quality commercial production powered by AI. Fast, focused, top-tier.
+              Cinematic commercial production powered by AI. Fast, focused, top-tier.
             </p>
           </div>
 
           <span className="text-xs font-mono text-zinc-400 hidden lg:inline">
-            4K Video &bull; Fast Delivery
+            Commercial Video &bull; Fast Delivery
           </span>
         </div>
 

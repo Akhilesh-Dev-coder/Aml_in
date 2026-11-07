@@ -43,7 +43,7 @@ export default function Hero({
         <div className="inline-flex lg:hidden items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-2 sm:mb-3 shadow-[0_0_15px_rgba(245,217,10,0.12)]">
           <span className="w-1.5 h-1.5 rounded-full bg-[#F5D90A] animate-ping" />
           <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-300">
-            AML STUDIO <span className="text-[#F5D90A] font-semibold">// 4K CINEMA AI</span>
+            AML STUDIO <span className="text-[#F5D90A] font-semibold">// COMMERCIAL AI</span>
           </span>
         </div>
 
@@ -101,7 +101,7 @@ export default function Hero({
             </p>
             <div className="mt-3 pt-2.5 border-t border-white/[0.08] flex items-center justify-between text-[10px] font-mono">
               <span className="text-white font-medium">10X FASTER</span>
-              <span className="text-[#F5D90A]">4K QUALITY</span>
+              <span className="text-[#F5D90A]">DIRECT DIRECTION</span>
             </div>
           </div>
         </div>
@@ -122,7 +122,7 @@ export default function Hero({
           <div className="absolute top-2.5 right-7 hidden xs:flex lg:hidden items-center gap-1 pointer-events-none z-10">
             <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
             <span className="text-[8px] font-mono tracking-widest uppercase text-zinc-400">
-              4K CINEMA
+              CINEMATIC
             </span>
           </div>
 
@@ -179,7 +179,7 @@ export default function Hero({
         <span className="text-zinc-700 text-xs font-mono">&bull;</span>
 
         <div className="flex items-center gap-1.5 px-2 py-0.5 text-[9px] xs:text-[10px] font-mono text-zinc-300">
-          <span className="text-[#F5D90A] font-semibold">4K QUALITY</span>
+          <span className="text-[#F5D90A] font-semibold">FAST DELIVERY</span>
         </div>
 
         <span className="text-zinc-700 text-xs font-mono">&bull;</span>
@@ -203,7 +203,7 @@ export default function Hero({
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-[#F5D90A]" />
           <span className="uppercase tracking-widest text-zinc-400 text-[10px] sm:text-[11px]">
-            AML &bull; AI COMMERCIALS &bull; 4K
+            AML &bull; AI COMMERCIALS &bull; STUDIO
           </span>
         </div>
 

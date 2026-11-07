@@ -53,7 +53,7 @@ export default function Loading() {
         </div>
 
         <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">
-          LOADING 4K REEL...
+          LOADING CINEMA REEL...
         </span>
 
       </div>

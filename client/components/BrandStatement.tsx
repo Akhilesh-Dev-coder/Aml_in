@@ -21,7 +21,7 @@ export default function BrandStatement() {
           </h2>
 
           <p className="text-xs sm:text-base md:text-lg text-zinc-400 font-light max-w-xl leading-relaxed">
-            Cinema-quality video in days, not months. Zero agency delays.
+            Cinematic video in days, not months. Zero agency delays.
           </p>
 
         </div>

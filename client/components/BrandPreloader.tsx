@@ -28,7 +28,7 @@ export default function BrandPreloader() {
       if (currentProg < 28) {
         setPhaseText("LOADING CINEMA PIPELINE...");
       } else if (currentProg < 65) {
-        setPhaseText("COMPILING 3D SHADERS & 4K REELS...");
+        setPhaseText("COMPILING 3D SHADERS & REELS...");
       } else if (currentProg < 92) {
         setPhaseText("FINALIZING STUDIO ENVIRONMENT...");
       } else {

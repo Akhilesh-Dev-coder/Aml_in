@@ -23,7 +23,7 @@ export default function AboutPhilosophy() {
             <span className="text-[#F5D90A] font-medium">Real Results.</span>
           </h2>
           <p className="text-xs sm:text-base text-zinc-400 font-light leading-relaxed">
-            Agency quality at indie speed. No runaround.
+            Agency creative at indie speed. No runaround.
           </p>
         </div>
 
@@ -57,9 +57,9 @@ export default function AboutPhilosophy() {
                 <div className="w-8 h-8 rounded-xl bg-[#F5D90A]/10 border border-[#F5D90A]/20 flex items-center justify-center text-[#F5D90A] mb-2.5 shadow-sm">
                   <Cpu className="w-4 h-4" />
                 </div>
-                <h4 className="text-sm font-medium text-white mb-1">Top Quality</h4>
+                <h4 className="text-sm font-medium text-white mb-1">Studio Polish</h4>
                 <p className="text-xs text-zinc-400 leading-relaxed">
-                  Ultra-sharp 4K, real lighting, and clean motion.
+                  Real lighting, clean motion, and custom sound design.
                 </p>
               </div>
 
@@ -173,7 +173,7 @@ export default function AboutPhilosophy() {
                     Master Delivery
                   </span>
                   <span className="text-xs font-mono text-white">
-                    4K Ultra HD &bull; Cinema Master
+                    Full Commercial Master
                   </span>
                 </div>
               </div>

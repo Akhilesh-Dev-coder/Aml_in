@@ -177,7 +177,7 @@ function DisciplineCard({
 
           <span className="text-[10px] xs:text-[11px] font-mono text-zinc-300 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md border border-white/10 flex items-center gap-1.5 shadow-md">
             <Film className="w-3 h-3 text-[#F5D90A]" />
-            <span>{sectionProjects.length || 1} {sectionProjects.length === 1 ? "Film" : "Films"} &bull; 4K</span>
+            <span>{sectionProjects.length || 1} {sectionProjects.length === 1 ? "Film" : "Films"}</span>
           </span>
         </div>
 
@@ -234,7 +234,7 @@ export default function SelectedWork({ projects }: SelectedWorkProps) {
           </div>
 
           <span className="text-xs font-mono text-zinc-400">
-            5 Categories &bull; 4K Quality
+            5 Categories &bull; Featured Works
           </span>
         </div>
 
