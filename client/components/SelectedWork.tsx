@@ -28,7 +28,7 @@ const DISCIPLINE_CARDS: DisciplineConfig[] = [
     category: "Commercial",
     number: "01",
     title: "Commercial",
-    tagline: "TV & Online Commercials",
+    tagline: "TV & Digital Ads",
     fallbackSlug: "chronos-fluid-precision",
     fallbackPoster: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1600&auto=format&fit=crop",
     fallbackVideo: "https://res.cloudinary.com/opkjlyme/video/upload/f_auto,q_auto,vc_auto,w_1920,c_limit/v1794014426/samples/cld-sample-video.mp4",
@@ -39,7 +39,7 @@ const DISCIPLINE_CARDS: DisciplineConfig[] = [
     category: "Product Film",
     number: "02",
     title: "Product Film",
-    tagline: "Product & Tech Videos",
+    tagline: "Product & Tech Films",
     fallbackSlug: "aether-one-genesis",
     fallbackPoster: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?q=80&w=1600&auto=format&fit=crop",
     fallbackVideo: "https://res.cloudinary.com/opkjlyme/video/upload/f_auto,q_auto,vc_auto,w_1920,c_limit/v1794050877/samples/snow_deer.mp4",
@@ -50,7 +50,7 @@ const DISCIPLINE_CARDS: DisciplineConfig[] = [
     category: "Brand Campaign",
     number: "03",
     title: "Brand Campaign",
-    tagline: "Brand Stories & Campaigns",
+    tagline: "Brand Visuals",
     fallbackSlug: "neura-synthesized-botanicals",
     fallbackPoster: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?q=80&w=1600&auto=format&fit=crop",
     fallbackVideo: "https://res.cloudinary.com/opkjlyme/video/upload/f_auto,q_auto,vc_auto,w_1920,c_limit/v1794014426/samples/sea-turtle.mp4",
@@ -61,7 +61,7 @@ const DISCIPLINE_CARDS: DisciplineConfig[] = [
     category: "Cinematic Visual",
     number: "04",
     title: "Cinematic Visual",
-    tagline: "Sci-Fi & 3D Visuals",
+    tagline: "3D & Sci-Fi Visuals",
     fallbackSlug: "solaris-autonomous-orbit",
     fallbackPoster: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1600&auto=format&fit=crop",
     fallbackVideo: "https://res.cloudinary.com/opkjlyme/video/upload/f_auto,q_auto,vc_auto,w_1920,c_limit/v1794014426/samples/elephants.mp4",
@@ -72,7 +72,7 @@ const DISCIPLINE_CARDS: DisciplineConfig[] = [
     category: "Social Creative",
     number: "05",
     title: "Social Creative",
-    tagline: "Fast-Paced Social Videos",
+    tagline: "Vertical Social Ads",
     fallbackSlug: "vortex-kinetic-performance",
     fallbackPoster: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1600&auto=format&fit=crop",
     fallbackVideo: "https://res.cloudinary.com/opkjlyme/video/upload/f_auto,q_auto,vc_auto,w_1920,c_limit/v1794014427/samples/dance-2.mp4",
@@ -229,7 +229,7 @@ export default function SelectedWork({ projects }: SelectedWorkProps) {
             </div>
 
             <h2 className="text-2xl xs:text-3xl sm:text-5xl lg:text-6xl font-extralight tracking-tight text-white leading-tight">
-              Selected <span className="text-[#F5D90A] font-normal italic font-serif">Commercials</span> &amp; Videos
+              Selected <span className="text-[#F5D90A] font-medium">Reels</span> &amp; Commercials
             </h2>
           </div>
 

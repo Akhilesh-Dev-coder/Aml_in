@@ -64,13 +64,13 @@ export default function ContactSection() {
             <span className="text-[#F5D90A] uppercase tracking-wider text-[11px]">Direct Bookings</span>
           </div>
 
-          <h2 className="text-3xl xs:text-4xl sm:text-6xl lg:text-7xl font-extralight tracking-tight text-white leading-[1.08] mb-6 sm:mb-8">
+          <h2 className="text-3xl xs:text-4xl sm:text-6xl lg:text-7xl font-extralight tracking-tight text-white leading-[1.08] mb-5 sm:mb-6">
             Ready to make your brand <br className="hidden sm:block" />
-            <span className="text-[#F5D90A] font-normal italic font-serif">stand out?</span>
+            <span className="text-[#F5D90A] font-medium">stand out?</span>
           </h2>
 
-          <p className="text-sm sm:text-lg md:text-xl text-zinc-400 font-light max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-12">
-            Let&apos;s make a video commercial that people remember. Send us a quick message to get started.
+          <p className="text-sm sm:text-base md:text-lg text-zinc-400 font-light max-w-xl mx-auto leading-relaxed mb-8 sm:mb-10">
+            Let&apos;s create a commercial that sells. Reach out to get started.
           </p>
 
           {/* Primary Action Button Bar */}

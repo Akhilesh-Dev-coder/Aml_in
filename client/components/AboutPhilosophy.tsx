@@ -18,12 +18,12 @@ export default function AboutPhilosophy() {
             <Sparkles className="w-3.5 h-3.5 text-[#F5D90A]" />
             <span>Why Choose Us</span>
           </div>
-          <h2 className="text-2xl xs:text-3xl sm:text-5xl lg:text-6xl font-extralight tracking-tight text-white leading-tight mb-4">
+          <h2 className="text-2xl xs:text-3xl sm:text-5xl lg:text-6xl font-extralight tracking-tight text-white leading-tight mb-3">
             Direct Direction. <br />
-            <span className="text-[#F5D90A] font-normal italic font-serif">Real Results.</span>
+            <span className="text-[#F5D90A] font-medium">Real Results.</span>
           </h2>
           <p className="text-xs sm:text-base text-zinc-400 font-light leading-relaxed">
-            We help brands create commercials that look amazing and sell, without the agency runaround.
+            Agency quality at indie speed. No runaround.
           </p>
         </div>
 
@@ -31,25 +31,25 @@ export default function AboutPhilosophy() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
           {/* Left: Simple Story & Principles */}
-          <div className="lg:col-span-7 flex flex-col gap-6">
-            <div className="text-zinc-300 font-light leading-relaxed text-xs sm:text-base space-y-3 sm:space-y-4">
+          <div className="lg:col-span-7 flex flex-col gap-5">
+            <div className="text-zinc-300 font-light leading-relaxed text-xs sm:text-base space-y-2.5">
               <p>
-                Traditional video shoots take months, cost too much, and get slowed down by too many meetings and middlemen. Your creative vision easily gets lost along the way.
+                Traditional shoots take months and drown in agency meetings.
               </p>
               <p>
-                By combining film direction with advanced AI tools, we deliver ready-to-air commercial videos in days instead of months.
+                We combine cinematic direction with AI to ship ready-to-air commercials in days.
               </p>
             </div>
 
             {/* Pillar Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-3.5 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-3.5 pt-1">
               <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#141414] to-[#0d0d0d] border border-white/[0.08] hover:border-[#F5D90A]/30 active:border-[#F5D90A]/40 shadow-sm transition-all">
                 <div className="w-8 h-8 rounded-xl bg-[#F5D90A]/10 border border-[#F5D90A]/20 flex items-center justify-center text-[#F5D90A] mb-2.5 shadow-sm">
                   <Clapperboard className="w-4 h-4" />
                 </div>
                 <h4 className="text-sm font-medium text-white mb-1">Direct Contact</h4>
                 <p className="text-xs text-zinc-400 leading-relaxed">
-                  Work straight with the director. No middlemen or extra fees.
+                  Work 1-on-1 with the director. Zero middlemen.
                 </p>
               </div>
 
@@ -59,7 +59,7 @@ export default function AboutPhilosophy() {
                 </div>
                 <h4 className="text-sm font-medium text-white mb-1">Top Quality</h4>
                 <p className="text-xs text-zinc-400 leading-relaxed">
-                  Ultra-sharp 4K video, realistic lighting, and clean motion.
+                  Ultra-sharp 4K, real lighting, and clean motion.
                 </p>
               </div>
 
@@ -69,7 +69,7 @@ export default function AboutPhilosophy() {
                 </div>
                 <h4 className="text-sm font-medium text-white mb-1">Fast Delivery</h4>
                 <p className="text-xs text-zinc-400 leading-relaxed">
-                  Fast turnaround for brands worldwide, delivered on schedule.
+                  5 to 10 day turnaround from brief to final master.
                 </p>
               </div>
             </div>
@@ -137,23 +137,23 @@ export default function AboutPhilosophy() {
               </div>
 
               {/* Workflow Standards */}
-              <div className="space-y-3 mb-6">
+              <div className="space-y-2.5 mb-6">
                 <div className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#F5D90A] shrink-0 mt-0.5" />
                   <p className="text-xs sm:text-sm text-zinc-300 font-light">
-                    Concept frames and visual moodboard delivered in 48 hours
+                    Concept frames &amp; moodboard delivered in 48 hours
                   </p>
                 </div>
                 <div className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#F5D90A] shrink-0 mt-0.5" />
                   <p className="text-xs sm:text-sm text-zinc-300 font-light">
-                    Direct revisions with director on lighting, pacing, and sound
+                    Direct revisions on pacing, lighting, and sound
                   </p>
                 </div>
                 <div className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-[#F5D90A] shrink-0 mt-0.5" />
                   <p className="text-xs sm:text-sm text-zinc-300 font-light">
-                    Full commercial buyout rights &amp; master delivery in 16:9 + 9:16
+                    Full buyout rights &amp; master delivery in 16:9 + 9:16
                   </p>
                 </div>
               </div>

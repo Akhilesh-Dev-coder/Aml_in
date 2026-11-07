@@ -16,12 +16,12 @@ export default function BrandStatement() {
             <span>Our Approach</span>
           </div>
 
-          <h2 className="text-2xl xs:text-3xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white leading-[1.2] mb-6 sm:mb-8">
-            We make <span className="text-[#F5D90A] font-normal italic font-serif">AI commercials</span> that grab attention and turn viewers into loyal customers.
+          <h2 className="text-2xl xs:text-3xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white leading-[1.2] mb-5 sm:mb-6">
+            We make <span className="text-[#F5D90A] font-medium">AI commercials</span> that grab attention and convert.
           </h2>
 
-          <p className="text-xs sm:text-base md:text-lg text-zinc-400 font-light max-w-2xl leading-relaxed">
-            Skip the high costs and slow timelines of traditional agencies. Get high-end, cinema-quality video in days, not months.
+          <p className="text-xs sm:text-base md:text-lg text-zinc-400 font-light max-w-xl leading-relaxed">
+            Cinema-quality video in days, not months. Zero agency delays.
           </p>
 
         </div>

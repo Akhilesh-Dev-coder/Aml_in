@@ -50,15 +50,15 @@ export default function Hero({
         {/* Editorial Headline */}
         <h1 className="hero-title text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-normal sm:font-light tracking-tight text-white leading-[1.1] sm:leading-[1.05] drop-shadow-md">
           Making brands{" "}
-          <span className="text-[#F5D90A] font-serif italic font-normal drop-shadow-[0_0_35px_rgba(245,217,10,0.4)]">
+          <span className="text-[#F5D90A] font-medium drop-shadow-[0_0_35px_rgba(245,217,10,0.4)]">
             impossible
           </span>{" "}
           to ignore.
         </h1>
 
         {/* Compelling Hook Subtitle */}
-        <p className="hero-desc text-xs xs:text-sm sm:text-base text-zinc-300 font-normal max-w-xl mx-auto mt-2 sm:mt-3 leading-relaxed drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
-          Cinema-grade video ads that stop the scroll and sell your product. Delivered fast, with zero agency delays.
+        <p className="hero-desc text-xs xs:text-sm sm:text-base text-zinc-300 font-normal max-w-lg mx-auto mt-2 sm:mt-3 leading-relaxed drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
+          Cinema-grade video ads that sell. Fast turnaround, zero agency delays.
         </p>
 
         {/* Dual Conversion CTAs */}
@@ -93,11 +93,11 @@ export default function Hero({
             <div className="flex items-center gap-1.5 pb-2 mb-2 border-b border-white/[0.08]">
               <ShieldCheck className="w-3.5 h-3.5 text-[#F5D90A]" />
               <span className="text-[10px] font-mono tracking-widest uppercase text-zinc-300">
-                Fast &amp; Direct
+                Direct Direction
               </span>
             </div>
             <p className="text-[11px] text-zinc-400 font-light leading-snug">
-              Work directly with the creator. No agency delays, just high-quality videos made fast.
+              Direct with the creator. No middlemen. Ready in days.
             </p>
             <div className="mt-3 pt-2.5 border-t border-white/[0.08] flex items-center justify-between text-[10px] font-mono">
               <span className="text-white font-medium">10X FASTER</span>

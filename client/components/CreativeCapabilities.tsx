@@ -28,7 +28,7 @@ const DISCIPLINES: Discipline[] = [
     title: "Product Commercials",
     tagline: "Clean 3D & Fine Details",
     description:
-      "Showcase your products in 4K with smooth motion, real reflections, and studio lighting without physical studio costs.",
+      "Showcase products in 4K with clean motion, studio lighting, and zero set costs.",
     highlights: ["4K Quality", "Smooth Motion", "Custom Audio"],
     icon: Video,
     colSpan: "lg:col-span-6",
@@ -39,7 +39,7 @@ const DISCIPLINES: Discipline[] = [
     title: "Brand Films",
     tagline: "Cinematic Storytelling",
     description:
-      "Tell your brand story with big cinematic visuals that inspire trust and make your company look world-class.",
+      "Cinematic stories that build brand prestige and convert viewers.",
     highlights: ["Cinema Lighting", "Brand Stories", "Web & TV Ready"],
     icon: Camera,
     colSpan: "lg:col-span-6",
@@ -50,7 +50,7 @@ const DISCIPLINES: Discipline[] = [
     title: "Luxury & Beauty",
     tagline: "Elegant Colors & Textures",
     description:
-      "Tailored for perfume, fashion, and beauty labels. Rich colors, delicate textures, and elegant lighting.",
+      "Rich colors, delicate textures, and high-fashion lighting for luxury labels.",
     highlights: ["Rich Colors", "Fabric & Liquid", "Fashion Ads"],
     icon: Wand2,
     colSpan: "lg:col-span-4",
@@ -61,7 +61,7 @@ const DISCIPLINES: Discipline[] = [
     title: "Visual Effects & 3D",
     tagline: "Creative Ideas Without Limits",
     description:
-      "Create dreamlike scenes, futuristic environments, and visual ideas that would be impossible to shoot on real cameras.",
+      "Surreal scenes, 3D architecture, and concepts impossible on camera.",
     highlights: ["3D Worlds", "Custom VFX", "Unique Concepts"],
     icon: Eye,
     colSpan: "lg:col-span-4",
@@ -72,7 +72,7 @@ const DISCIPLINES: Discipline[] = [
     title: "Social Media Videos",
     tagline: "Fast Videos That Stop The Scroll",
     description:
-      "Fast-paced video ads designed specifically for TikTok, Instagram Reels, and YouTube Shorts to drive clicks.",
+      "High-energy vertical video ads designed to stop the scroll and drive clicks.",
     highlights: ["3-Second Hooks", "9:16 Vertical", "High Energy"],
     icon: Flame,
     colSpan: "lg:col-span-4",
@@ -97,12 +97,12 @@ export default function CreativeCapabilities() {
 
             {/* Title */}
             <h2 className="text-2xl xs:text-3xl sm:text-5xl lg:text-6xl font-extralight tracking-tight text-white leading-tight">
-              Our <span className="text-[#F5D90A] font-normal italic font-serif">Services</span>
+              Our <span className="text-[#F5D90A] font-medium">Services</span>
             </h2>
 
             {/* Subtitle */}
-            <p className="text-xs sm:text-base text-zinc-400 font-light max-w-2xl mt-2.5 sm:mt-3 leading-relaxed">
-              High-end video production powered by modern AI. Fast turnaround, fair pricing, and top-tier quality.
+            <p className="text-xs sm:text-base text-zinc-400 font-light max-w-xl mt-2.5 sm:mt-3 leading-relaxed">
+              Cinema-quality commercial production powered by AI. Fast, focused, top-tier.
             </p>
           </div>
 
