@@ -19,6 +19,7 @@ import {
   Building2,
   Tag,
   ArrowLeft,
+  ArrowUp,
   Info,
   Film,
   Sparkles,
@@ -95,6 +96,48 @@ export default function ProjectShowcaseView({
     window.addEventListener("resize", checkViewport);
     return () => window.removeEventListener("resize", checkViewport);
   }, []);
+
+  // Prevent any mobile window/body scrolling or rubberband blank space
+  useEffect(() => {
+    if (isMounted && !isDesktop) {
+      const origBodyOverflow = document.body.style.overflow;
+      const origHtmlOverflow = document.documentElement.style.overflow;
+      const origBodyPosition = document.body.style.position;
+
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+      document.body.style.height = "100%";
+
+      return () => {
+        document.body.style.overflow = origBodyOverflow;
+        document.documentElement.style.overflow = origHtmlOverflow;
+        document.body.style.position = origBodyPosition;
+        document.body.style.width = "";
+        document.body.style.height = "";
+      };
+    }
+  }, [isMounted, isDesktop]);
+
+  // Mobile swipe gesture tracking to cycle back to top on last reel
+  const mobileTouchStartY = useRef(0);
+
+  const handleMobileTouchStart = (e: React.TouchEvent) => {
+    mobileTouchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleMobileTouchEnd = (e: React.TouchEvent) => {
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaY = mobileTouchStartY.current - touchEndY;
+    // If user swiped up (> 50px) on the last reel, smoothly cycle to reel 0
+    if (deltaY > 50 && activeIndex === displayProjects.length - 1) {
+      const feed = mobileFeedRef.current;
+      if (feed) {
+        feed.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+  };
 
   // Duration parser helper
   const parseDuration = useCallback((dur?: string): number => {
@@ -509,7 +552,7 @@ export default function ProjectShowcaseView({
           - No buttons to change videos: swipe/scroll up and down like Instagram Reels & TikTok!
           - Plays videos unmuted!
       ======================================================================= */}
-      <div className="md:hidden h-[100dvh] w-full relative bg-black overflow-hidden">
+      <div className="md:hidden fixed inset-0 w-full h-[100dvh] bg-black overflow-hidden z-50">
         
         {/* Top Fixed Floating Navigation Controls */}
         <div className="absolute top-0 left-0 right-0 p-4 pt-6 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex items-center justify-between z-40 pointer-events-auto">
@@ -533,37 +576,30 @@ export default function ProjectShowcaseView({
             </span>
           </div>
 
-          {/* Sound Mute Toggle & Close */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleMute();
-              }}
-              className="p-2 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-white hover:text-[#F5D90A]"
-              title={isMuted ? "Unmute" : "Mute"}
-            >
-              {isMuted ? (
-                <VolumeX className="w-4 h-4 text-zinc-400" />
-              ) : (
-                <Volume2 className="w-4 h-4 text-[#F5D90A]" />
-              )}
-            </button>
-
-            <button
-              onClick={handleClose}
-              className="p-2 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-white hover:text-[#F5D90A]"
-              title="Close"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
+          {/* Sound Mute Toggle */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleMute();
+            }}
+            className="p-2 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-white hover:text-[#F5D90A] transition-colors"
+            title={isMuted ? "Unmute" : "Mute"}
+          >
+            {isMuted ? (
+              <VolumeX className="w-4 h-4 text-zinc-400" />
+            ) : (
+              <Volume2 className="w-4 h-4 text-[#F5D90A]" />
+            )}
+          </button>
         </div>
 
         {/* Native Vertical Snap Feed (Swipe up/down like Instagram Reels) */}
         <div
           ref={mobileFeedRef}
-          className="h-[100dvh] w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth touch-pan-y relative bg-black no-scrollbar"
+          onTouchStart={handleMobileTouchStart}
+          onTouchEnd={handleMobileTouchEnd}
+          className="h-[100dvh] w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth touch-pan-y relative bg-black no-scrollbar overscroll-none overscroll-y-contain select-none"
+          style={{ overscrollBehavior: "none", WebkitOverflowScrolling: "touch" }}
         >
           {displayProjects.map((proj, idx) => {
             const isThisActive = idx === activeIndex;
@@ -680,6 +716,25 @@ export default function ProjectShowcaseView({
                     <Info className="w-4 h-4 text-zinc-300" />
                   </button>
                 </div>
+
+                {/* Final Reel: Loop to First Reel prompt */}
+                {idx === displayProjects.length - 1 && isThisActive && (
+                  <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 pointer-events-auto animate-in fade-in duration-300">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const feed = mobileFeedRef.current;
+                        if (feed) {
+                          feed.scrollTo({ top: 0, behavior: "smooth" });
+                        }
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-[#F5D90A]/40 text-[#F5D90A] text-xs font-mono shadow-xl active:scale-95 transition-transform"
+                    >
+                      <ArrowUp className="w-3.5 h-3.5" />
+                      <span>Loop to First Reel</span>
+                    </button>
+                  </div>
+                )}
 
                 {/* Bottom Scrim & Reel Caption */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 pb-6 pt-16 bg-gradient-to-t from-black via-black/70 to-transparent z-30 pointer-events-auto">
