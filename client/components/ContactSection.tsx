@@ -25,9 +25,9 @@ function InstagramIcon({ className = "w-5 h-5" }: { className?: string }) {
 
 export default function ContactSection() {
   const [copied, setCopied] = useState(false);
-  const email = "contact@aml.in";
-  const whatsappUrl = "https://wa.me/15551234567";
-  const instagramUrl = "https://instagram.com";
+  const email = "amalmanas39@gmail.com";
+  const whatsappUrl = "https://wa.me/919037054167";
+  const instagramUrl = "https://www.instagram.com/aml.in_?xtok=MWpidDJob2pucmpqNA==";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(email);
@@ -118,10 +118,10 @@ export default function ContactSection() {
               </div>
               <div>
                 <span className="text-xs uppercase font-mono tracking-wider text-zinc-400 block">
-                  Quick Chat
+                  Quick Chat &bull; +91 90370 54167
                 </span>
                 <span className="text-sm font-medium text-white">
-                  WhatsApp
+                  Chat on WhatsApp
                 </span>
               </div>
             </div>
@@ -140,10 +140,10 @@ export default function ContactSection() {
               </div>
               <div>
                 <span className="text-xs uppercase font-mono tracking-wider text-zinc-400 block">
-                  Behind The Scenes
+                  Behind The Scenes &bull; @aml.in_
                 </span>
                 <span className="text-sm font-medium text-white">
-                  Instagram
+                  Follow on Instagram
                 </span>
               </div>
             </div>

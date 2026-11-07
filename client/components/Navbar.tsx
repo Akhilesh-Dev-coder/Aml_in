@@ -222,6 +222,32 @@ export default function Navbar() {
             >
               Start Project
             </Link>
+            <div className="flex items-center justify-center gap-4 pt-1">
+              <a
+                href="https://wa.me/919037054167"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-mono text-zinc-400 hover:text-[#F5D90A] transition-colors"
+              >
+                WhatsApp
+              </a>
+              <span className="text-zinc-600">&bull;</span>
+              <a
+                href="https://www.instagram.com/aml.in_?xtok=MWpidDJob2pucmpqNA=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-mono text-zinc-400 hover:text-[#F5D90A] transition-colors"
+              >
+                Instagram
+              </a>
+              <span className="text-zinc-600">&bull;</span>
+              <a
+                href="mailto:amalmanas39@gmail.com"
+                className="text-xs font-mono text-zinc-400 hover:text-[#F5D90A] transition-colors"
+              >
+                Email
+              </a>
+            </div>
             <p className="text-xs text-zinc-500 text-center font-mono">
               Available for projects worldwide.
             </p>
