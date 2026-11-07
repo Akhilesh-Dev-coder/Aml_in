@@ -66,8 +66,8 @@ Create a `.env.local` file in the `client/` directory with the following variabl
 MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/ai_portfolio?retryWrites=true&w=majority
 
 # Admin Authentication
-ADMIN_USERNAME=admin@aml.in
-ADMIN_PASSWORD=admin@123
+ADMIN_USERNAME=your_admin_email@domain.com
+ADMIN_PASSWORD=your_secure_password
 # Or ADMIN_PASSWORD_HASH=$2a$10$...
 JWT_SECRET=aml_creative_studio_jwt_secret_key_minimum_32_characters_2025
 
@@ -101,7 +101,7 @@ NEXT_PUBLIC_SITE_URL=https://aml.in
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-5. Access the Studio CMS at [http://localhost:3000/admin](http://localhost:3000/admin) (Default credentials: `admin@aml.in` / `admin@123`).
+5. Access the Studio CMS at [http://localhost:3000/admin](http://localhost:3000/admin).
 
 ---
 

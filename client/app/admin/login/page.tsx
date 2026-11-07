@@ -101,7 +101,7 @@ export default function AdminLoginPage() {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="admin@aml.in"
+                placeholder="name@domain.com"
                 className="w-full bg-[#171717] border border-white/10 focus:border-[#F5D90A] rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none transition-colors"
               />
             </div>
@@ -138,12 +138,6 @@ export default function AdminLoginPage() {
               )}
             </button>
           </form>
-
-          <div className="mt-8 pt-6 border-t border-white/[0.08] text-center">
-            <p className="text-[11px] font-mono text-zinc-500">
-              Default credentials in dev: <span className="text-zinc-300">admin@aml.in</span> / <span className="text-zinc-300">admin@123</span>
-            </p>
-          </div>
 
         </div>
       </div>
