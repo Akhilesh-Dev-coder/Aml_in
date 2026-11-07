@@ -35,7 +35,14 @@ export function useGsapHeroAnimation() {
         gsap.fromTo(
           q(".hero-cta"),
           { opacity: 0.7, y: 10 },
-          { opacity: 1, y: 0, duration: 0.45, delay: 0.12, ease: "power2.out" }
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.45,
+            delay: 0.12,
+            ease: "power2.out",
+            clearProps: "transform",
+          }
         );
       }
     }, containerRef);

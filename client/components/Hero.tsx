@@ -38,7 +38,7 @@ export default function Hero({
       {/* =========================================================================
           1. TOP ROW: EDITORIAL HEADLINE, SUBTITLE & DUAL CTAS
       ========================================================================= */}
-      <div className="relative z-20 flex flex-col items-center text-center max-w-4xl mx-auto shrink-0 mt-1 sm:mt-3 px-3 sm:px-4">
+      <div className="relative z-30 flex flex-col items-center text-center max-w-4xl mx-auto shrink-0 mt-1 sm:mt-3 px-3 sm:px-4 pb-1 sm:pb-2 pointer-events-auto">
         {/* Director Status Tag (Mobile & Tablet Only) */}
         <div className="inline-flex lg:hidden items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-2 sm:mb-3 shadow-[0_0_15px_rgba(245,217,10,0.12)]">
           <span className="w-1.5 h-1.5 rounded-full bg-[#F5D90A] animate-ping" />
@@ -62,11 +62,11 @@ export default function Hero({
         </p>
 
         {/* Dual Conversion CTAs */}
-        <div className="hero-cta flex flex-row items-center justify-center gap-2.5 sm:gap-3.5 mt-3.5 sm:mt-5 w-full sm:w-auto">
+        <div className="hero-cta relative z-40 flex flex-row items-center justify-center gap-2.5 sm:gap-3.5 mt-3.5 sm:mt-5 mb-1 sm:mb-2 w-full sm:w-auto pointer-events-auto">
           <Link
             href={`/project/${firstProjectSlug}`}
             prefetch={true}
-            className="group inline-flex items-center justify-center gap-2 bg-[#F5D90A] hover:bg-[#ffe32a] text-black font-semibold text-xs tracking-wider uppercase py-2.5 sm:py-3 px-5 sm:px-6 rounded-full transition-all duration-300 hover:scale-[1.03] shadow-[0_0_30px_rgba(245,217,10,0.45)] active:scale-95 text-center whitespace-nowrap"
+            className="relative z-50 pointer-events-auto cursor-pointer touch-manipulation group inline-flex items-center justify-center gap-2 bg-[#F5D90A] hover:bg-[#ffe32a] text-black font-semibold text-xs tracking-wider uppercase py-2.5 sm:py-3 px-5 sm:px-6 rounded-full transition-all duration-300 hover:scale-[1.03] shadow-[0_0_30px_rgba(245,217,10,0.45)] active:scale-95 text-center whitespace-nowrap"
           >
             <Play className="w-3.5 h-3.5 fill-black shrink-0 transition-transform group-hover:scale-110" />
             <span>View Work</span>
@@ -74,7 +74,7 @@ export default function Hero({
 
           <Link
             href="#contact"
-            className="group inline-flex items-center justify-center gap-2 bg-white/[0.06] hover:bg-white/[0.12] text-white hover:text-[#F5D90A] border border-white/20 hover:border-[#F5D90A]/50 active:scale-95 text-xs font-medium uppercase tracking-wider py-2.5 sm:py-3 px-5 sm:px-6 rounded-full backdrop-blur-md transition-all duration-300 text-center whitespace-nowrap shadow-lg"
+            className="relative z-50 pointer-events-auto cursor-pointer touch-manipulation group inline-flex items-center justify-center gap-2 bg-white/[0.06] hover:bg-white/[0.12] text-white hover:text-[#F5D90A] border border-white/20 hover:border-[#F5D90A]/50 active:scale-95 text-xs font-medium uppercase tracking-wider py-2.5 sm:py-3 px-5 sm:px-6 rounded-full backdrop-blur-md transition-all duration-300 text-center whitespace-nowrap shadow-lg"
           >
             <span>Get in Touch</span>
             <ArrowUpRight className="w-3.5 h-3.5 text-zinc-300 group-hover:text-[#F5D90A] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" />
@@ -85,10 +85,10 @@ export default function Hero({
       {/* =========================================================================
           2. CENTER STAGE: THE LIQUID MOLTEN FLUID SPHERE + FLANKING CAPSULES
       ========================================================================= */}
-      <div className="relative z-20 flex-1 w-full max-w-6xl mx-auto flex items-center justify-between min-h-0 my-1 sm:my-auto">
+      <div className="relative z-10 flex-1 w-full max-w-6xl mx-auto flex items-center justify-between min-h-0 my-auto pointer-events-none">
         
         {/* Left Floating Micro-Card (Desktop) */}
-        <div className="hidden lg:flex flex-col gap-3 w-56 shrink-0 relative z-30">
+        <div className="hidden lg:flex flex-col gap-3 w-56 shrink-0 relative z-30 pointer-events-auto">
           <div className="bg-[#111111]/70 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-xl">
             <div className="flex items-center gap-1.5 pb-2 mb-2 border-b border-white/[0.08]">
               <ShieldCheck className="w-3.5 h-3.5 text-[#F5D90A]" />
@@ -107,7 +107,7 @@ export default function Hero({
         </div>
 
         {/* Central 3D Canvas Container */}
-        <div className="relative flex-1 w-full h-[250px] xs:h-[280px] lg:h-auto lg:min-h-[220px] lg:max-h-[440px] flex items-center justify-center mx-auto sm:mx-6 overflow-hidden">
+        <div className="relative flex-1 w-full h-[220px] xs:h-[250px] sm:h-[280px] lg:h-auto lg:min-h-[220px] lg:max-h-[440px] flex items-center justify-center mx-auto sm:mx-6 overflow-hidden pointer-events-auto">
           {/* Viewfinder HUD Corner Accents (Mobile Only) */}
           <div className="absolute top-2 left-2 w-3 h-3 border-t border-l border-white/20 pointer-events-none z-10 lg:hidden" />
           <div className="absolute top-2 right-2 w-3 h-3 border-t border-r border-white/20 pointer-events-none z-10 lg:hidden" />
@@ -126,7 +126,7 @@ export default function Hero({
             </span>
           </div>
 
-          <HeroScene3D className="w-full h-full" />
+          <HeroScene3D className="w-full h-full pointer-events-auto" />
 
           {/* Interactive Drag Hint Pill */}
           <div className="absolute bottom-1 sm:bottom-2 flex items-center justify-center pointer-events-none z-10 w-full px-2">
@@ -140,7 +140,7 @@ export default function Hero({
         </div>
 
         {/* Right Floating Micro-Card (Desktop) */}
-        <div className="hidden lg:flex flex-col gap-3 w-56 shrink-0 relative z-30">
+        <div className="hidden lg:flex flex-col gap-3 w-56 shrink-0 relative z-30 pointer-events-auto">
           <Link
             href="/project/chronos-fluid-precision"
             className="group bg-[#111111]/70 backdrop-blur-xl border border-white/10 hover:border-[#F5D90A]/40 transition-colors rounded-2xl p-4 shadow-xl block"

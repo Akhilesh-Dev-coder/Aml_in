@@ -64,6 +64,7 @@ export default function HeroScene3D({ className = "" }: HeroScene3DProps) {
       renderer.domElement.style.width = "100%";
       renderer.domElement.style.height = "100%";
       renderer.domElement.style.display = "block";
+      renderer.domElement.style.touchAction = "pan-y";
       renderer.setPixelRatio(isMobile ? Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 1.5) : Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 1.75));
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.4;
@@ -268,6 +269,7 @@ export default function HeroScene3D({ className = "" }: HeroScene3DProps) {
       let shockwaveIntensity = 0;
 
       const onPointerDown = (e: PointerEvent) => {
+        if (e.button !== 0) return;
         isDragging = true;
         prevMouseX = e.clientX;
         prevMouseY = e.clientY;
@@ -295,10 +297,10 @@ export default function HeroScene3D({ className = "" }: HeroScene3DProps) {
         shockwaveIntensity = 1.0;
       };
 
-      container.addEventListener("pointerdown", onPointerDown);
+      renderer.domElement.addEventListener("pointerdown", onPointerDown);
       window.addEventListener("pointermove", onPointerMove);
       window.addEventListener("pointerup", onPointerUp);
-      container.addEventListener("click", onClick);
+      renderer.domElement.addEventListener("click", onClick);
 
       // =========================================================================
       // 8. ANIMATION LOOP (HARDWARE ACCELERATED FLUID ORB)
@@ -415,10 +417,12 @@ export default function HeroScene3D({ className = "" }: HeroScene3DProps) {
           visibilityObserver.disconnect();
         }
         resizeObserver.disconnect();
-        container.removeEventListener("pointerdown", onPointerDown);
+        if (renderer.domElement) {
+          renderer.domElement.removeEventListener("pointerdown", onPointerDown);
+          renderer.domElement.removeEventListener("click", onClick);
+        }
         window.removeEventListener("pointermove", onPointerMove);
         window.removeEventListener("pointerup", onPointerUp);
-        container.removeEventListener("click", onClick);
         cancelAnimationFrame(animId);
 
         sphereGeo.dispose();
