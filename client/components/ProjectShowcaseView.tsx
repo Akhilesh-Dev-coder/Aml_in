@@ -82,16 +82,50 @@ export default function ProjectShowcaseView({
   const [isVideoReady, setIsVideoReady] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
 
-  // Unmuted by default as requested: videos play with sound
+  // Viewport detection to isolate desktop cinema and mobile reels playback
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    const checkViewport = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    checkViewport();
+    window.addEventListener("resize", checkViewport);
+    return () => window.removeEventListener("resize", checkViewport);
+  }, []);
+
+  // Duration parser helper
+  const parseDuration = useCallback((dur?: string): number => {
+    if (!dur) return 0;
+    const parts = dur.split(":").map((p) => parseFloat(p.trim()));
+    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+      return parts[0] * 60 + parts[1];
+    }
+    if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+      return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    }
+    const num = parseFloat(dur);
+    return isNaN(num) ? 0 : num;
+  }, []);
+
+  // Unmuted by default: videos play with sound
   const [isMuted, setIsMuted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [copied, setCopied] = useState(false);
 
-  // Desktop specific player state
+  // Desktop specific player state & smooth 60fps timeline scrubber
   const desktopVideoRef = useRef<HTMLVideoElement>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
+  const [isScrubbing, setIsScrubbing] = useState(false);
+  const [hoverProgress, setHoverProgress] = useState<number | null>(null);
   const [desktopProgress, setDesktopProgress] = useState(0);
   const [desktopCurrentTime, setDesktopCurrentTime] = useState(0);
-  const [desktopDuration, setDesktopDuration] = useState(0);
+  const [desktopDuration, setDesktopDuration] = useState(() =>
+    parseDuration(activeProject.duration)
+  );
 
   // Mobile Reels specific refs
   const mobileFeedRef = useRef<HTMLDivElement>(null);
@@ -130,19 +164,22 @@ export default function ProjectShowcaseView({
   }, [activeIndex, displayProjects.length]);
 
   // ---------------------------------------------------------------------------
-  // Silent unmuting on first gesture without any UI prompt
+  // Silent unmuting on first gesture (strictly for active viewport player)
   // ---------------------------------------------------------------------------
   useEffect(() => {
     const handleGesture = () => {
       setIsMuted(false);
-      if (desktopVideoRef.current) {
-        desktopVideoRef.current.muted = false;
-        desktopVideoRef.current.volume = 1;
-      }
-      const activeMobile = mobileVideoRefs.current.get(activeIndex);
-      if (activeMobile) {
-        activeMobile.muted = false;
-        activeMobile.volume = 1;
+      if (isDesktop) {
+        if (desktopVideoRef.current) {
+          desktopVideoRef.current.muted = false;
+          desktopVideoRef.current.volume = 1;
+        }
+      } else {
+        const activeMobile = mobileVideoRefs.current.get(activeIndex);
+        if (activeMobile) {
+          activeMobile.muted = false;
+          activeMobile.volume = 1;
+        }
       }
     };
 
@@ -157,14 +194,32 @@ export default function ProjectShowcaseView({
       window.removeEventListener("pointerdown", handleGesture);
       window.removeEventListener("keydown", handleGesture);
     };
-  }, [activeIndex]);
+  }, [isDesktop, activeIndex]);
 
   // ---------------------------------------------------------------------------
   // DESKTOP: Video Playback & Autoplay Unmuted on Project Change
   // ---------------------------------------------------------------------------
   useEffect(() => {
+    // Immediate state reset for fluid transition
+    const initialDur = parseDuration(activeProject.duration);
+    setDesktopDuration(initialDur > 0 ? initialDur : 0);
+    setDesktopCurrentTime(0);
+    setDesktopProgress(0);
     setIsVideoReady(false);
     setIsBuffering(false);
+
+    // If on mobile screen, ensure desktop player is strictly stopped and muted
+    if (!isMounted || !isDesktop) {
+      if (desktopVideoRef.current) {
+        try {
+          desktopVideoRef.current.pause();
+          desktopVideoRef.current.muted = true;
+          desktopVideoRef.current.currentTime = 0;
+        } catch {}
+      }
+      return;
+    }
+
     const vid = desktopVideoRef.current;
     if (!vid) return;
 
@@ -185,23 +240,52 @@ export default function ProjectShowcaseView({
           vid.play().catch(() => {});
         });
     }
-  }, [activeProject.slug]);
+  }, [activeProject.slug, isDesktop, isMounted, parseDuration]);
 
   // Synchronize mute state without restarting video playback
   useEffect(() => {
-    if (desktopVideoRef.current) {
+    if (isDesktop && desktopVideoRef.current) {
       desktopVideoRef.current.muted = isMuted;
+    } else if (!isDesktop) {
+      const currentMobile = mobileVideoRefs.current.get(activeIndex);
+      if (currentMobile) {
+        currentMobile.muted = isMuted;
+      }
     }
-    const currentMobile = mobileVideoRefs.current.get(activeIndex);
-    if (currentMobile) {
-      currentMobile.muted = isMuted;
-    }
-  }, [isMuted, activeIndex]);
+  }, [isMuted, isDesktop, activeIndex]);
+
+  // ---------------------------------------------------------------------------
+  // DESKTOP: 60FPS Fluid Timeline Scrubber Animation Loop
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    if (!isPlaying || !isDesktop) return;
+    let animId: number;
+
+    const tick = () => {
+      const vid = desktopVideoRef.current;
+      if (vid && !isDraggingRef.current) {
+        const cur = vid.currentTime;
+        const dur =
+          isFinite(vid.duration) && vid.duration > 0
+            ? vid.duration
+            : desktopDuration;
+        setDesktopCurrentTime(cur);
+        if (dur > 0) {
+          setDesktopProgress(Math.min(100, Math.max(0, (cur / dur) * 100)));
+        }
+      }
+      animId = requestAnimationFrame(tick);
+    };
+
+    animId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animId);
+  }, [isPlaying, isDesktop, desktopDuration]);
 
   // ---------------------------------------------------------------------------
   // MOBILE: Vertical Scroll Intersection Observer (Feed snapping)
   // ---------------------------------------------------------------------------
   useEffect(() => {
+    if (!isMounted || isDesktop) return;
     const feed = mobileFeedRef.current;
     if (!feed) return;
 
@@ -249,13 +333,25 @@ export default function ProjectShowcaseView({
     items.forEach((item) => observer.observe(item));
 
     return () => observer.disconnect();
-  }, [displayProjects, activeCategory]);
+  }, [displayProjects, activeCategory, isMounted, isDesktop, activeIndex]);
 
   // ---------------------------------------------------------------------------
-  // MOBILE: Video Play/Pause Management across Reels
+  // MOBILE: Video Play/Pause Management across Reels (Disabled on Desktop)
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    // Only play the active video, pause all others
+    // If on desktop screen, ensure ALL mobile videos are strictly paused, muted, and reset
+    if (!isMounted || isDesktop) {
+      mobileVideoRefs.current.forEach((videoEl) => {
+        try {
+          videoEl.pause();
+          videoEl.muted = true;
+          videoEl.currentTime = 0;
+        } catch {}
+      });
+      return;
+    }
+
+    // Only play the active mobile video, pause all others
     mobileVideoRefs.current.forEach((videoEl, idx) => {
       if (idx === activeIndex) {
         videoEl.muted = isMuted;
@@ -273,11 +369,13 @@ export default function ProjectShowcaseView({
             });
         }
       } else {
-        videoEl.pause();
-        videoEl.currentTime = 0;
+        try {
+          videoEl.pause();
+          videoEl.currentTime = 0;
+        } catch {}
       }
     });
-  }, [activeIndex, displayProjects]);
+  }, [activeIndex, displayProjects, isDesktop, isMounted, isMuted]);
 
   // ---------------------------------------------------------------------------
   // Project selection from Laptop Gallery or Filter
@@ -299,23 +397,24 @@ export default function ProjectShowcaseView({
     }
   };
 
-  // Toggle Mute globally
+  // Toggle Mute (Strictly for active screen)
   const toggleMute = () => {
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
 
-    if (desktopVideoRef.current) {
+    if (isDesktop && desktopVideoRef.current) {
       desktopVideoRef.current.muted = nextMuted;
-    }
-    const currentMobile = mobileVideoRefs.current.get(activeIndex);
-    if (currentMobile) {
-      currentMobile.muted = nextMuted;
+    } else if (!isDesktop) {
+      const currentMobile = mobileVideoRefs.current.get(activeIndex);
+      if (currentMobile) {
+        currentMobile.muted = nextMuted;
+      }
     }
   };
 
-  // Toggle Play / Pause
+  // Toggle Play / Pause (Strictly for active screen)
   const togglePlay = () => {
-    if (desktopVideoRef.current) {
+    if (isDesktop && desktopVideoRef.current) {
       if (desktopVideoRef.current.paused) {
         desktopVideoRef.current.play();
         setIsPlaying(true);
@@ -323,15 +422,16 @@ export default function ProjectShowcaseView({
         desktopVideoRef.current.pause();
         setIsPlaying(false);
       }
-    }
-    const currentMobile = mobileVideoRefs.current.get(activeIndex);
-    if (currentMobile) {
-      if (currentMobile.paused) {
-        currentMobile.play();
-        setIsPlaying(true);
-      } else {
-        currentMobile.pause();
-        setIsPlaying(false);
+    } else if (!isDesktop) {
+      const currentMobile = mobileVideoRefs.current.get(activeIndex);
+      if (currentMobile) {
+        if (currentMobile.paused) {
+          currentMobile.play();
+          setIsPlaying(true);
+        } else {
+          currentMobile.pause();
+          setIsPlaying(false);
+        }
       }
     }
   };
@@ -343,19 +443,61 @@ export default function ProjectShowcaseView({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Desktop Timeline Scrubbing
-  const handleDesktopSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const pos = (e.clientX - rect.left) / rect.width;
-    if (desktopVideoRef.current && desktopVideoRef.current.duration) {
-      desktopVideoRef.current.currentTime = pos * desktopVideoRef.current.duration;
-    }
+  // ---------------------------------------------------------------------------
+  // DESKTOP: Timeline Scrubbing & Drag Seeking
+  // ---------------------------------------------------------------------------
+  const seekToPosition = useCallback(
+    (clientX: number) => {
+      const bar = timelineRef.current;
+      const vid = desktopVideoRef.current;
+      if (!bar) return;
+      const rect = bar.getBoundingClientRect();
+      if (rect.width <= 0) return;
+      const clampedX = Math.max(0, Math.min(clientX - rect.left, rect.width));
+      const percentage = (clampedX / rect.width) * 100;
+      setDesktopProgress(percentage);
+
+      const dur =
+        vid && isFinite(vid.duration) && vid.duration > 0
+          ? vid.duration
+          : desktopDuration;
+      if (dur > 0) {
+        const targetTime = (percentage / 100) * dur;
+        setDesktopCurrentTime(targetTime);
+        if (vid) {
+          vid.currentTime = targetTime;
+        }
+      }
+    },
+    [desktopDuration]
+  );
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    isDraggingRef.current = true;
+    setIsScrubbing(true);
+    seekToPosition(e.clientX);
+
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      seekToPosition(moveEvent.clientX);
+    };
+
+    const onPointerUp = (upEvent: PointerEvent) => {
+      isDraggingRef.current = false;
+      setIsScrubbing(false);
+      seekToPosition(upEvent.clientX);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+    };
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
   };
 
   const formatTime = (secs: number) => {
-    if (isNaN(secs)) return "00:00";
-    const minutes = Math.floor(secs / 60);
-    const seconds = Math.floor(secs % 60);
+    if (isNaN(secs) || !isFinite(secs) || secs < 0) return "00:00";
+    const totalSeconds = Math.floor(secs);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
     return `${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
@@ -426,8 +568,14 @@ export default function ProjectShowcaseView({
           {displayProjects.map((proj, idx) => {
             const isThisActive = idx === activeIndex;
             const curTime = mobileActiveTimes[idx] || 0;
-            const dur = mobileDurations[idx] || 1;
-            const prog = dur > 0 ? (curTime / dur) * 100 : 0;
+            const parsedDur = parseDuration(proj.duration);
+            const dur =
+              mobileDurations[idx] && mobileDurations[idx] > 0
+                ? mobileDurations[idx]
+                : parsedDur > 0
+                ? parsedDur
+                : 0;
+            const prog = dur > 0 ? Math.min(100, (curTime / dur) * 100) : 0;
 
             return (
               <div
@@ -435,7 +583,7 @@ export default function ProjectShowcaseView({
                 data-reel-index={idx}
                 className="h-[100dvh] w-full snap-start snap-always relative shrink-0 overflow-hidden flex items-center justify-center bg-black"
               >
-                {/* Video Element */}
+                {/* Video Element (Muted and dormant when on desktop screen) */}
                 <video
                   ref={(el) => {
                     if (el) mobileVideoRefs.current.set(idx, el);
@@ -445,14 +593,20 @@ export default function ProjectShowcaseView({
                   poster={proj.thumbnailUrl || getOptimizedThumbnailUrl(proj.videoUrl)}
                   loop
                   playsInline
-                  preload={Math.abs(idx - activeIndex) <= 1 ? "auto" : "none"}
-                  muted={isMuted}
+                  preload={
+                    isDesktop
+                      ? "none"
+                      : Math.abs(idx - activeIndex) <= 1
+                      ? "auto"
+                      : "none"
+                  }
+                  muted={isDesktop ? true : isMuted}
                   onClick={(e) => {
                     e.stopPropagation();
                     togglePlay();
                   }}
                   onTimeUpdate={(e) => {
-                    if (isThisActive) {
+                    if (isThisActive && !isDesktop) {
                       const cur = e.currentTarget.currentTime;
                       setMobileActiveTimes((prev) => ({
                         ...prev,
@@ -461,11 +615,22 @@ export default function ProjectShowcaseView({
                     }
                   }}
                   onLoadedMetadata={(e) => {
-                    const dur = e.currentTarget.duration;
-                    setMobileDurations((prev) => ({
-                      ...prev,
-                      [idx]: dur,
-                    }));
+                    const d = e.currentTarget.duration;
+                    if (isFinite(d) && d > 0) {
+                      setMobileDurations((prev) => ({
+                        ...prev,
+                        [idx]: d,
+                      }));
+                    }
+                  }}
+                  onDurationChange={(e) => {
+                    const d = e.currentTarget.duration;
+                    if (isFinite(d) && d > 0) {
+                      setMobileDurations((prev) => ({
+                        ...prev,
+                        [idx]: d,
+                      }));
+                    }
                   }}
                   className="w-full h-full object-cover"
                 />
@@ -754,30 +919,56 @@ export default function ProjectShowcaseView({
                   ref={desktopVideoRef}
                   src={activeOptimizedVideoUrl}
                   poster={activePoster}
-                  autoPlay
                   loop
-                  muted={isMuted}
+                  muted={!isDesktop || isMuted}
                   playsInline
                   preload="auto"
                   onClick={togglePlay}
-                  onCanPlay={() => setIsVideoReady(true)}
+                  onCanPlay={(e) => {
+                    setIsVideoReady(true);
+                    const d = e.currentTarget.duration;
+                    if (isFinite(d) && d > 0) {
+                      setDesktopDuration(d);
+                    }
+                  }}
+                  onDurationChange={(e) => {
+                    const d = e.currentTarget.duration;
+                    if (isFinite(d) && d > 0) {
+                      setDesktopDuration(d);
+                    }
+                  }}
+                  onLoadedMetadata={(e) => {
+                    const d = e.currentTarget.duration;
+                    if (isFinite(d) && d > 0) {
+                      setDesktopDuration(d);
+                    }
+                    setIsVideoReady(true);
+                  }}
                   onPlaying={() => {
                     setIsVideoReady(true);
                     setIsBuffering(false);
                     setIsPlaying(true);
                   }}
                   onWaiting={() => setIsBuffering(true)}
-                  onTimeUpdate={(e) => {
-                    setDesktopCurrentTime(e.currentTarget.currentTime);
-                    if (e.currentTarget.duration) {
-                      setDesktopProgress(
-                        (e.currentTarget.currentTime / e.currentTarget.duration) * 100
-                      );
-                    }
+                  onEnded={() => {
+                    setDesktopCurrentTime(0);
+                    setDesktopProgress(0);
                   }}
-                  onLoadedMetadata={(e) => {
-                    setDesktopDuration(e.currentTarget.duration);
-                    setIsVideoReady(true);
+                  onTimeUpdate={(e) => {
+                    if (!isDraggingRef.current) {
+                      const cur = e.currentTarget.currentTime;
+                      const d =
+                        isFinite(e.currentTarget.duration) &&
+                        e.currentTarget.duration > 0
+                          ? e.currentTarget.duration
+                          : desktopDuration;
+                      setDesktopCurrentTime(cur);
+                      if (d > 0) {
+                        setDesktopProgress(
+                          Math.min(100, Math.max(0, (cur / d) * 100))
+                        );
+                      }
+                    }
                   }}
                   className={`w-full h-full object-contain cursor-pointer transition-opacity duration-300 z-0 ${
                     isVideoReady ? "opacity-100" : "opacity-90"
@@ -799,16 +990,49 @@ export default function ProjectShowcaseView({
 
               {/* Custom Cinema Controls Scrim */}
               <div className="p-4 sm:p-5 bg-gradient-to-t from-black via-[#121212] to-[#121212]/95 border-t border-white/[0.08]">
-                {/* Scrub Timeline */}
+                {/* Scrub Timeline with Drag & 60FPS Smooth Seeking */}
                 <div
-                  onClick={handleDesktopSeek}
-                  className="w-full h-1.5 hover:h-2.5 bg-white/15 rounded-full cursor-pointer mb-3.5 transition-all relative overflow-hidden group/scrub"
+                  ref={timelineRef}
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={(e) => {
+                    const bar = timelineRef.current;
+                    if (!bar) return;
+                    const rect = bar.getBoundingClientRect();
+                    if (rect.width <= 0) return;
+                    const clampedX = Math.max(
+                      0,
+                      Math.min(e.clientX - rect.left, rect.width)
+                    );
+                    setHoverProgress((clampedX / rect.width) * 100);
+                  }}
+                  onPointerLeave={() => setHoverProgress(null)}
+                  className="w-full py-2.5 cursor-pointer relative group/scrub mb-2 select-none"
+                  title="Click or drag to seek"
                 >
-                  <div
-                    className="h-full bg-[#F5D90A] rounded-full relative"
-                    style={{ width: `${desktopProgress}%` }}
-                  >
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover/scrub:opacity-100 transition-opacity" />
+                  {/* Track Bar */}
+                  <div className="w-full h-1.5 group-hover/scrub:h-2 bg-white/20 rounded-full transition-all duration-150 relative">
+                    {/* Hover Preview Bar */}
+                    {hoverProgress !== null && (
+                      <div
+                        className="absolute top-0 bottom-0 left-0 bg-white/20 rounded-full pointer-events-none"
+                        style={{ width: `${hoverProgress}%` }}
+                      />
+                    )}
+
+                    {/* Progress Bar Fill */}
+                    <div
+                      className="h-full bg-[#F5D90A] rounded-full relative pointer-events-none transition-[width] duration-75 ease-linear"
+                      style={{ width: `${desktopProgress}%` }}
+                    >
+                      {/* Scrubber Thumb Knob */}
+                      <div
+                        className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-3.5 h-3.5 bg-white rounded-full shadow-[0_0_12px_rgba(245,217,10,0.9)] border border-black/30 transition-transform ${
+                          isScrubbing
+                            ? "scale-125 opacity-100"
+                            : "scale-100 opacity-0 group-hover/scrub:opacity-100"
+                        }`}
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -837,7 +1061,7 @@ export default function ProjectShowcaseView({
                       )}
                     </button>
 
-                    <span className="text-zinc-400">
+                    <span className="text-zinc-400 tabular-nums">
                       {formatTime(desktopCurrentTime)} / {formatTime(desktopDuration)}
                     </span>
                   </div>
