@@ -10,6 +10,8 @@ import { Project } from "@/models/Project";
 import { INITIAL_PROJECTS } from "@/lib/initialData";
 import { IProject } from "@/types/project";
 
+export const revalidate = 60;
+
 async function getPortfolioProjects(): Promise<IProject[]> {
   try {
     const db = await connectToDatabase();

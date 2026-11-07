@@ -1,18 +1,19 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, cache } from "react";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Project } from "@/models/Project";
 import { INITIAL_PROJECTS } from "@/lib/initialData";
 import { IProject } from "@/types/project";
 import ProjectShowcaseView from "@/components/ProjectShowcaseView";
 
+export const revalidate = 60;
+
 interface PageProps {
   params: Promise<{ slug: string }>;
-  searchParams?: Promise<{ category?: string }>;
 }
 
-async function getAllProjects(): Promise<IProject[]> {
+const getAllProjects = cache(async (): Promise<IProject[]> => {
   try {
     const db = await connectToDatabase();
     if (!db) return INITIAL_PROJECTS;
@@ -26,8 +27,20 @@ async function getAllProjects(): Promise<IProject[]> {
   } catch {
     return INITIAL_PROJECTS;
   }
-}
+});
 
+export async function generateStaticParams() {
+  try {
+    const allProjects = await getAllProjects();
+    return allProjects.map((p) => ({
+      slug: p.slug,
+    }));
+  } catch {
+    return INITIAL_PROJECTS.map((p) => ({
+      slug: p.slug,
+    }));
+  }
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -60,15 +73,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 async function ProjectContent({
   params,
-  searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams?: Promise<{ category?: string }>;
 }) {
   const { slug } = await params;
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const category = resolvedSearchParams?.category;
-
   const allProjects = await getAllProjects();
   const project = allProjects.find((p) => p.slug === slug || p.id === slug);
 
@@ -80,7 +88,6 @@ async function ProjectContent({
     <ProjectShowcaseView
       currentProject={project}
       allProjects={allProjects}
-      initialCategory={category}
     />
   );
 }
@@ -90,14 +97,11 @@ export default function ProjectPage(props: PageProps) {
     <Suspense
       fallback={
         <div className="min-h-screen bg-[#050505] flex items-center justify-center text-zinc-500 font-mono text-xs">
-          Loading 4K Cinema Reel...
+          Loading Cinema Reel...
         </div>
       }
     >
-      <ProjectContent
-        params={props.params}
-        searchParams={props.searchParams}
-      />
+      <ProjectContent params={props.params} />
     </Suspense>
   );
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Project } from "@/models/Project";
+import { getOptimizedVideoUrl, getOptimizedThumbnailUrl } from "@/lib/media";
 import { INITIAL_PROJECTS } from "@/lib/initialData";
 
 function generateSlug(title: string): string {
@@ -91,14 +92,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Ensure video URL is optimized for streaming
+    const finalVideoUrl = getOptimizedVideoUrl(videoUrl);
+
     // Auto-derive thumbnail from video if not explicitly provided
     let finalThumbnail = thumbnailUrl;
-    if (!finalThumbnail && videoUrl) {
-      if (videoUrl.includes("res.cloudinary.com") && videoUrl.includes("/video/upload/")) {
-        finalThumbnail = videoUrl.replace(/\/video\/upload\/(?:v\d+\/)?/, "/video/upload/so_0,f_jpg/").replace(/\.[^/.]+$/, ".jpg");
-      } else {
-        finalThumbnail = "/images/aml_logo.svg";
-      }
+    if (!finalThumbnail && finalVideoUrl) {
+      finalThumbnail = getOptimizedThumbnailUrl(finalVideoUrl) || "/images/aml_logo.svg";
     }
 
     let slug = generateSlug(title);
@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
       category: category || "Commercial",
       clientName: clientName || "",
       year: year || "2025",
-      videoUrl,
+      videoUrl: finalVideoUrl,
       thumbnailUrl: finalThumbnail,
       cloudinaryPublicId: cloudinaryPublicId || "",
       thumbnailPublicId: thumbnailPublicId || "",

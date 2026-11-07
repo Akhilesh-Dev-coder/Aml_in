@@ -3,6 +3,7 @@ import { getAdminSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Project } from "@/models/Project";
 import { v2 as cloudinary } from "cloudinary";
+import { getOptimizedVideoUrl, getOptimizedThumbnailUrl } from "@/lib/media";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -23,13 +24,13 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
 
     const body = await req.json();
 
+    if (body.videoUrl) {
+      body.videoUrl = getOptimizedVideoUrl(body.videoUrl);
+    }
+
     // Auto-derive thumbnail from video if not provided or empty
     if (body.videoUrl && !body.thumbnailUrl) {
-      if (body.videoUrl.includes("res.cloudinary.com") && body.videoUrl.includes("/video/upload/")) {
-        body.thumbnailUrl = body.videoUrl.replace(/\/video\/upload\/(?:v\d+\/)?/, "/video/upload/so_0,f_jpg/").replace(/\.[^/.]+$/, ".jpg");
-      } else {
-        body.thumbnailUrl = "/images/aml_logo.svg";
-      }
+      body.thumbnailUrl = getOptimizedThumbnailUrl(body.videoUrl) || "/images/aml_logo.svg";
     }
 
     const updated = await Project.findByIdAndUpdate(

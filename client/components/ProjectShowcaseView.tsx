@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { IProject } from "@/types/project";
+import { getOptimizedVideoUrl, getOptimizedThumbnailUrl } from "@/lib/media";
 import {
   X,
   Play,
@@ -36,10 +37,12 @@ export default function ProjectShowcaseView({
   initialCategory,
 }: ProjectShowcaseViewProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryCat = searchParams.get("category");
 
   // Category Filtering
   const [activeCategory, setActiveCategory] = useState<string>(
-    initialCategory || "All"
+    initialCategory || queryCat || "All"
   );
 
   const categories = useMemo(() => {
@@ -66,6 +69,18 @@ export default function ProjectShowcaseView({
   });
 
   const activeProject = displayProjects[activeIndex] || currentProject;
+  const activeOptimizedVideoUrl = useMemo(
+    () => getOptimizedVideoUrl(activeProject.videoUrl),
+    [activeProject.videoUrl]
+  );
+  const activePoster = useMemo(
+    () => activeProject.thumbnailUrl || getOptimizedThumbnailUrl(activeProject.videoUrl),
+    [activeProject.thumbnailUrl, activeProject.videoUrl]
+  );
+
+  // Instant player ready & buffering indicators
+  const [isVideoReady, setIsVideoReady] = useState(false);
+  const [isBuffering, setIsBuffering] = useState(false);
 
   // Unmuted by default as requested: videos play with sound
   const [isMuted, setIsMuted] = useState(false);
@@ -145,9 +160,11 @@ export default function ProjectShowcaseView({
   }, [activeIndex]);
 
   // ---------------------------------------------------------------------------
-  // DESKTOP: Video Playback & Autoplay Unmuted
+  // DESKTOP: Video Playback & Autoplay Unmuted on Project Change
   // ---------------------------------------------------------------------------
   useEffect(() => {
+    setIsVideoReady(false);
+    setIsBuffering(false);
     const vid = desktopVideoRef.current;
     if (!vid) return;
 
@@ -161,14 +178,25 @@ export default function ProjectShowcaseView({
         .then(() => {
           setIsPlaying(true);
         })
-        .catch((err) => {
+        .catch(() => {
           // If browser policy restricted unmuted playback on direct cold visit,
           // play quietly until gesture without ever showing an unmute button/popup
           vid.muted = true;
           vid.play().catch(() => {});
         });
     }
-  }, [activeProject.slug, isMuted]);
+  }, [activeProject.slug]);
+
+  // Synchronize mute state without restarting video playback
+  useEffect(() => {
+    if (desktopVideoRef.current) {
+      desktopVideoRef.current.muted = isMuted;
+    }
+    const currentMobile = mobileVideoRefs.current.get(activeIndex);
+    if (currentMobile) {
+      currentMobile.muted = isMuted;
+    }
+  }, [isMuted, activeIndex]);
 
   // ---------------------------------------------------------------------------
   // MOBILE: Vertical Scroll Intersection Observer (Feed snapping)
@@ -249,7 +277,7 @@ export default function ProjectShowcaseView({
         videoEl.currentTime = 0;
       }
     });
-  }, [activeIndex, isMuted, displayProjects]);
+  }, [activeIndex, displayProjects]);
 
   // ---------------------------------------------------------------------------
   // Project selection from Laptop Gallery or Filter
@@ -413,11 +441,11 @@ export default function ProjectShowcaseView({
                     if (el) mobileVideoRefs.current.set(idx, el);
                     else mobileVideoRefs.current.delete(idx);
                   }}
-                  src={proj.videoUrl}
-                  poster={proj.thumbnailUrl}
+                  src={getOptimizedVideoUrl(proj.videoUrl)}
+                  poster={proj.thumbnailUrl || getOptimizedThumbnailUrl(proj.videoUrl)}
                   loop
                   playsInline
-                  preload={isThisActive ? "auto" : "metadata"}
+                  preload={Math.abs(idx - activeIndex) <= 1 ? "auto" : "none"}
                   muted={isMuted}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -705,15 +733,40 @@ export default function ProjectShowcaseView({
             {/* 16:9 Video Player Card */}
             <div className="relative rounded-3xl bg-[#0c0c0c] border border-white/15 overflow-hidden shadow-[0_25px_90px_rgba(0,0,0,0.95)] group">
               <div className="relative aspect-[16/9] w-full bg-black flex items-center justify-center overflow-hidden">
+                {/* Instant High-Res Poster Frame Preview to eliminate pitch-black pause */}
+                {activePoster && (
+                  <div
+                    className={`absolute inset-0 bg-cover bg-center transition-opacity duration-300 pointer-events-none z-10 ${
+                      isVideoReady ? "opacity-0" : "opacity-100"
+                    }`}
+                    style={{ backgroundImage: `url(${activePoster})` }}
+                  >
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center">
+                      <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/70 border border-white/10 text-[11px] font-mono text-zinc-300 shadow-xl">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#F5D90A] animate-ping" />
+                        <span>Streaming 4K Reel...</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <video
                   ref={desktopVideoRef}
-                  src={activeProject.videoUrl}
-                  poster={activeProject.thumbnailUrl}
+                  src={activeOptimizedVideoUrl}
+                  poster={activePoster}
                   autoPlay
                   loop
                   muted={isMuted}
                   playsInline
+                  preload="auto"
                   onClick={togglePlay}
+                  onCanPlay={() => setIsVideoReady(true)}
+                  onPlaying={() => {
+                    setIsVideoReady(true);
+                    setIsBuffering(false);
+                    setIsPlaying(true);
+                  }}
+                  onWaiting={() => setIsBuffering(true)}
                   onTimeUpdate={(e) => {
                     setDesktopCurrentTime(e.currentTarget.currentTime);
                     if (e.currentTarget.duration) {
@@ -724,15 +777,18 @@ export default function ProjectShowcaseView({
                   }}
                   onLoadedMetadata={(e) => {
                     setDesktopDuration(e.currentTarget.duration);
+                    setIsVideoReady(true);
                   }}
-                  className="w-full h-full object-contain cursor-pointer"
+                  className={`w-full h-full object-contain cursor-pointer transition-opacity duration-300 z-0 ${
+                    isVideoReady ? "opacity-100" : "opacity-90"
+                  }`}
                 />
 
                 {/* Big Watermark Play Button when paused */}
-                {!isPlaying && (
+                {!isPlaying && isVideoReady && (
                   <div
                     onClick={togglePlay}
-                    className="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer"
+                    className="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer z-20"
                   >
                     <div className="w-20 h-20 rounded-full bg-[#F5D90A] text-black flex items-center justify-center shadow-[0_0_40px_rgba(245,217,10,0.5)] transform scale-100 hover:scale-110 transition-transform">
                       <Play className="w-8 h-8 fill-black ml-1" />
@@ -895,6 +951,16 @@ export default function ProjectShowcaseView({
                   <div
                     key={p.slug || p.id || idx}
                     onClick={() => selectProjectByIndex(idx)}
+                    onMouseEnter={() => {
+                      const targetUrl = getOptimizedVideoUrl(p.videoUrl);
+                      if (targetUrl && typeof window !== "undefined") {
+                        const link = document.createElement("link");
+                        link.rel = "prefetch";
+                        link.as = "fetch";
+                        link.href = targetUrl;
+                        document.head.appendChild(link);
+                      }
+                    }}
                     className={`group cursor-pointer rounded-2xl p-3.5 border transition-all duration-300 flex items-center gap-3.5 relative overflow-hidden ${
                       isSelected
                         ? "bg-[#181818] border-[#F5D90A] shadow-[0_0_25px_rgba(245,217,10,0.2)] ring-1 ring-[#F5D90A]/40"

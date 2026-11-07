@@ -4,6 +4,7 @@ import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { IProject } from "@/types/project";
 import { Film, Play, ArrowUpRight } from "lucide-react";
+import { getOptimizedVideoUrl } from "@/lib/media";
 
 interface SelectedWorkProps {
   projects: IProject[];
@@ -30,7 +31,7 @@ const DISCIPLINE_CARDS: DisciplineConfig[] = [
     tagline: "TV & Online Commercials",
     fallbackSlug: "chronos-fluid-precision",
     fallbackPoster: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1600&auto=format&fit=crop",
-    fallbackVideo: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    fallbackVideo: "https://res.cloudinary.com/opkjlyme/video/upload/f_auto,q_auto,vc_auto,w_1920,c_limit/v1794014426/samples/cld-sample-video.mp4",
     colSpan: "lg:col-span-7",
   },
   {
@@ -41,7 +42,7 @@ const DISCIPLINE_CARDS: DisciplineConfig[] = [
     tagline: "Product & Tech Videos",
     fallbackSlug: "aether-one-genesis",
     fallbackPoster: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?q=80&w=1600&auto=format&fit=crop",
-    fallbackVideo: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    fallbackVideo: "https://res.cloudinary.com/opkjlyme/video/upload/f_auto,q_auto,vc_auto,w_1920,c_limit/v1794050877/samples/snow_deer.mp4",
     colSpan: "lg:col-span-5",
   },
   {
@@ -52,7 +53,7 @@ const DISCIPLINE_CARDS: DisciplineConfig[] = [
     tagline: "Brand Stories & Campaigns",
     fallbackSlug: "neura-synthesized-botanicals",
     fallbackPoster: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?q=80&w=1600&auto=format&fit=crop",
-    fallbackVideo: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+    fallbackVideo: "https://res.cloudinary.com/opkjlyme/video/upload/f_auto,q_auto,vc_auto,w_1920,c_limit/v1794014426/samples/sea-turtle.mp4",
     colSpan: "lg:col-span-4",
   },
   {
@@ -63,7 +64,7 @@ const DISCIPLINE_CARDS: DisciplineConfig[] = [
     tagline: "Sci-Fi & 3D Visuals",
     fallbackSlug: "solaris-autonomous-orbit",
     fallbackPoster: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1600&auto=format&fit=crop",
-    fallbackVideo: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4",
+    fallbackVideo: "https://res.cloudinary.com/opkjlyme/video/upload/f_auto,q_auto,vc_auto,w_1920,c_limit/v1794014426/samples/elephants.mp4",
     colSpan: "lg:col-span-4",
   },
   {
@@ -74,7 +75,7 @@ const DISCIPLINE_CARDS: DisciplineConfig[] = [
     tagline: "Fast-Paced Social Videos",
     fallbackSlug: "vortex-kinetic-performance",
     fallbackPoster: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1600&auto=format&fit=crop",
-    fallbackVideo: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+    fallbackVideo: "https://res.cloudinary.com/opkjlyme/video/upload/f_auto,q_auto,vc_auto,w_1920,c_limit/v1794014427/samples/dance-2.mp4",
     colSpan: "lg:col-span-4",
   },
 ];
@@ -95,13 +96,23 @@ function DisciplineCard({
   );
 
   const primaryProject = sectionProjects[0];
-  const videoUrl = primaryProject?.videoUrl || config.fallbackVideo;
+  const rawVideoUrl = primaryProject?.videoUrl || config.fallbackVideo;
+  const videoUrl = getOptimizedVideoUrl(rawVideoUrl, { width: 1280, quality: "eco" });
+  const fullStreamUrl = getOptimizedVideoUrl(rawVideoUrl, { width: 1920, quality: "good" });
   const posterUrl = primaryProject?.thumbnailUrl || config.fallbackPoster;
   const projectSlug = primaryProject?.slug || config.fallbackSlug;
   const videoViewUrl = `/project/${projectSlug}?category=${encodeURIComponent(config.category)}`;
 
   const handleMouseEnter = () => {
     setIsHovered(true);
+    // Warm up the destination video cache on hover
+    if (typeof window !== "undefined" && fullStreamUrl) {
+      const link = document.createElement("link");
+      link.rel = "prefetch";
+      link.as = "fetch";
+      link.href = fullStreamUrl;
+      document.head.appendChild(link);
+    }
     if (videoRef.current) {
       videoRef.current.currentTime = 0;
       videoRef.current.play().catch(() => {});
@@ -123,6 +134,7 @@ function DisciplineCard({
     >
       <Link
         href={videoViewUrl}
+        prefetch={true}
         className="group relative block w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 hover:border-[#F5D90A]/60 active:border-[#F5D90A] transition-all duration-500 bg-[#0c0c0c] shadow-[0_15px_50px_rgba(0,0,0,0.85)] hover:shadow-[0_20px_70px_rgba(245,217,10,0.15)] flex flex-col justify-between min-h-[250px] xs:min-h-[275px] sm:min-h-[380px] p-4 xs:p-5 sm:p-7 active:scale-[0.99]"
       >
         {/* =========================================================================

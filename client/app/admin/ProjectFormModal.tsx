@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { IProject } from "@/types/project";
 import { X, Upload, Check, AlertCircle, Loader2, Video, Image as ImageIcon, ChevronDown, ChevronUp } from "lucide-react";
+import { getOptimizedVideoUrl, getOptimizedThumbnailUrl } from "@/lib/media";
 
 interface ProjectFormModalProps {
   isOpen: boolean;
@@ -131,12 +132,16 @@ export default function ProjectFormModal({
         if (xhr.status === 200) {
           const res = JSON.parse(xhr.responseText);
           if (type === "video") {
-            setVideoUrl(res.secure_url);
+            const optimizedUrl = getOptimizedVideoUrl(res.secure_url);
+            setVideoUrl(optimizedUrl);
             setCloudinaryPublicId(res.public_id);
+            if (!thumbnailUrl) {
+              setThumbnailUrl(getOptimizedThumbnailUrl(res.secure_url));
+            }
             setUploadingVideo(false);
             setVideoProgress(100);
           } else {
-            setThumbnailUrl(res.secure_url);
+            setThumbnailUrl(getOptimizedThumbnailUrl(res.secure_url));
             setThumbnailPublicId(res.public_id);
             setUploadingThumb(false);
             setThumbProgress(100);
@@ -174,14 +179,11 @@ export default function ProjectFormModal({
     setSaving(true);
 
     try {
+      const finalVideoUrl = getOptimizedVideoUrl(videoUrl);
       // Auto-derive thumbnail from video if user didn't provide one
       let finalThumb = thumbnailUrl;
-      if (!finalThumb && videoUrl) {
-        if (videoUrl.includes("res.cloudinary.com") && videoUrl.includes("/video/upload/")) {
-          finalThumb = videoUrl.replace(/\/video\/upload\/(?:v\d+\/)?/, "/video/upload/so_0,f_jpg/").replace(/\.[^/.]+$/, ".jpg");
-        } else {
-          finalThumb = "/images/aml_logo.svg";
-        }
+      if (!finalThumb && finalVideoUrl) {
+        finalThumb = getOptimizedThumbnailUrl(finalVideoUrl) || "/images/aml_logo.svg";
       }
 
       const payload = {
@@ -191,7 +193,7 @@ export default function ProjectFormModal({
         category,
         clientName,
         year,
-        videoUrl,
+        videoUrl: finalVideoUrl,
         thumbnailUrl: finalThumb,
         cloudinaryPublicId,
         thumbnailPublicId,

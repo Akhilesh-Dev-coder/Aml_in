@@ -65,6 +65,7 @@ export default function Hero({
         <div className="hero-cta flex flex-row items-center justify-center gap-2.5 sm:gap-3.5 mt-3.5 sm:mt-5 w-full sm:w-auto">
           <Link
             href={`/project/${firstProjectSlug}`}
+            prefetch={true}
             className="group inline-flex items-center justify-center gap-2 bg-[#F5D90A] hover:bg-[#ffe32a] text-black font-semibold text-xs tracking-wider uppercase py-2.5 sm:py-3 px-5 sm:px-6 rounded-full transition-all duration-300 hover:scale-[1.03] shadow-[0_0_30px_rgba(245,217,10,0.45)] active:scale-95 text-center whitespace-nowrap"
           >
             <Play className="w-3.5 h-3.5 fill-black shrink-0 transition-transform group-hover:scale-110" />
