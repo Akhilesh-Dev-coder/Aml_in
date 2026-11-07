@@ -24,17 +24,12 @@ export default function ProjectFormModal({
 
   const [title, setTitle] = useState("");
   const [caption, setCaption] = useState("");
-  const [description, setDescription] = useState("");
   const [category, setCategory] = useState<IProject["category"]>(defaultCategory);
-  const [clientName, setClientName] = useState("");
-  const [year, setYear] = useState("2025");
   const [videoUrl, setVideoUrl] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [cloudinaryPublicId, setCloudinaryPublicId] = useState("");
   const [thumbnailPublicId, setThumbnailPublicId] = useState("");
   const [published, setPublished] = useState(true);
-  const [tagsInput, setTagsInput] = useState("");
-  const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16" | "4:5" | "1:1">("16:9");
   const [showCustomThumb, setShowCustomThumb] = useState(false);
 
   // Upload states
@@ -50,32 +45,22 @@ export default function ProjectFormModal({
     if (projectToEdit) {
       setTitle(projectToEdit.title || "");
       setCaption(projectToEdit.caption || "");
-      setDescription(projectToEdit.description || "");
       setCategory(projectToEdit.category || defaultCategory);
-      setClientName(projectToEdit.clientName || "");
-      setYear(projectToEdit.year || "2025");
       setVideoUrl(projectToEdit.videoUrl || "");
       setThumbnailUrl(projectToEdit.thumbnailUrl || "");
       setCloudinaryPublicId(projectToEdit.cloudinaryPublicId || "");
       setThumbnailPublicId(projectToEdit.thumbnailPublicId || "");
       setPublished(projectToEdit.published !== false);
-      setTagsInput(projectToEdit.tags ? projectToEdit.tags.join(", ") : "");
-      setAspectRatio(projectToEdit.aspectRatio || "16:9");
       setShowCustomThumb(Boolean(projectToEdit.thumbnailUrl && !projectToEdit.thumbnailUrl.includes("aml_logo")));
     } else {
       setTitle("");
       setCaption("");
-      setDescription("");
       setCategory(defaultCategory);
-      setClientName("");
-      setYear("2025");
       setVideoUrl("");
       setThumbnailUrl("");
       setCloudinaryPublicId("");
       setThumbnailPublicId("");
       setPublished(true);
-      setTagsInput("");
-      setAspectRatio("16:9");
       setShowCustomThumb(false);
     }
     setError("");
@@ -171,8 +156,8 @@ export default function ProjectFormModal({
     e.preventDefault();
     setError("");
 
-    if (!title || !caption || !description || !videoUrl) {
-      setError("Please complete all required fields: Title, Caption, Description, and Video Asset.");
+    if (!title || !caption || !videoUrl) {
+      setError("Please complete all required fields: Title, Caption, and Video Asset.");
       return;
     }
 
@@ -189,20 +174,18 @@ export default function ProjectFormModal({
       const payload = {
         title,
         caption,
-        description,
+        description: projectToEdit?.description || caption || "",
         category,
-        clientName,
-        year,
+        clientName: projectToEdit?.clientName || "",
+        year: projectToEdit?.year || "",
         videoUrl: finalVideoUrl,
         thumbnailUrl: finalThumb,
         cloudinaryPublicId,
         thumbnailPublicId,
         featured: false,
         published,
-        aspectRatio,
-        tags: tagsInput
-          ? tagsInput.split(",").map((t) => t.trim()).filter(Boolean)
-          : [],
+        aspectRatio: projectToEdit?.aspectRatio || "16:9",
+        tags: projectToEdit?.tags || [],
       };
 
       const targetId = projectToEdit?._id || projectToEdit?.id;
@@ -297,47 +280,19 @@ export default function ProjectFormModal({
             </div>
           </div>
 
-          {/* Caption & Client / Year */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-            <div className="sm:col-span-6">
-              <label className="block text-xs uppercase font-mono tracking-wider text-zinc-400 mb-2">
-                Caption / Hook *
-              </label>
-              <input
-                type="text"
-                required
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                placeholder="High Horology in Molten Microgravity"
-                className="w-full bg-[#1b1b1b] border border-white/10 focus:border-[#F5D90A] rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none"
-              />
-            </div>
-
-            <div className="sm:col-span-4">
-              <label className="block text-xs uppercase font-mono tracking-wider text-zinc-400 mb-2">
-                Brand / Client
-              </label>
-              <input
-                type="text"
-                value={clientName}
-                onChange={(e) => setClientName(e.target.value)}
-                placeholder="Chronos Haute Horlogerie"
-                className="w-full bg-[#1b1b1b] border border-white/10 focus:border-[#F5D90A] rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-xs uppercase font-mono tracking-wider text-zinc-400 mb-2">
-                Year
-              </label>
-              <input
-                type="text"
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-                placeholder="2025"
-                className="w-full bg-[#1b1b1b] border border-white/10 focus:border-[#F5D90A] rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none"
-              />
-            </div>
+          {/* Caption / Hook */}
+          <div>
+            <label className="block text-xs uppercase font-mono tracking-wider text-zinc-400 mb-2">
+              Caption / Hook *
+            </label>
+            <input
+              type="text"
+              required
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              placeholder="High Horology in Molten Microgravity"
+              className="w-full bg-[#1b1b1b] border border-white/10 focus:border-[#F5D90A] rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none"
+            />
           </div>
 
           {/* Video Asset Section (Primary Asset) */}
@@ -441,53 +396,6 @@ export default function ProjectFormModal({
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-xs uppercase font-mono tracking-wider text-zinc-400 mb-2">
-              Director Narrative &amp; Technical Breakdown *
-            </label>
-            <textarea
-              required
-              rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe the aesthetic direction, generative models utilized, camera choreography, and commercial impact..."
-              className="w-full bg-[#1b1b1b] border border-white/10 focus:border-[#F5D90A] rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:outline-none"
-            />
-          </div>
-
-          {/* Tags & Aspect Ratio */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-            <div className="sm:col-span-8">
-              <label className="block text-xs uppercase font-mono tracking-wider text-zinc-400 mb-2">
-                Tags (comma separated)
-              </label>
-              <input
-                type="text"
-                value={tagsInput}
-                onChange={(e) => setTagsInput(e.target.value)}
-                placeholder="Horology, Liquid Metal, Photorealism, 4K"
-                className="w-full bg-[#1b1b1b] border border-white/10 focus:border-[#F5D90A] rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none"
-              />
-            </div>
-
-            <div className="sm:col-span-4">
-              <label className="block text-xs uppercase font-mono tracking-wider text-zinc-400 mb-2">
-                Aspect Ratio
-              </label>
-              <select
-                value={aspectRatio}
-                onChange={(e) => setAspectRatio(e.target.value as any)}
-                className="w-full bg-[#1b1b1b] border border-white/10 focus:border-[#F5D90A] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none"
-              >
-                <option value="16:9">16:9 Cinema</option>
-                <option value="9:16">9:16 Vertical Reel</option>
-                <option value="4:5">4:5 Social Feed</option>
-                <option value="1:1">1:1 Square</option>
-              </select>
-            </div>
           </div>
 
           {/* Published Toggle */}

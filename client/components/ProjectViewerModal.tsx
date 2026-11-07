@@ -276,9 +276,11 @@ export default function ProjectViewerModal({
               <p className="text-sm text-[#F5D90A] font-mono mb-3">
                 {project.caption}
               </p>
-              <p className="text-xs sm:text-sm text-zinc-300 font-light leading-relaxed">
-                {project.description}
-              </p>
+              {project.description && (
+                <p className="text-xs sm:text-sm text-zinc-300 font-light leading-relaxed">
+                  {project.description}
+                </p>
+              )}
             </div>
 
             {project.tags && project.tags.length > 0 && (

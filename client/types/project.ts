@@ -4,7 +4,7 @@ export interface IProject {
   title: string;
   slug: string;
   caption: string;
-  description: string;
+  description?: string;
   category: "Commercial" | "Product Film" | "Brand Campaign" | "Cinematic Visual" | "Social Creative";
   clientName?: string;
   year?: string;

@@ -92,9 +92,9 @@ export async function POST(req: NextRequest) {
       aspectRatio,
     } = body;
 
-    if (!title || !caption || !description || !videoUrl) {
+    if (!title || !caption || !videoUrl) {
       return NextResponse.json(
-        { error: "Title, caption, description, and videoUrl are required." },
+        { error: "Title, caption, and videoUrl are required." },
         { status: 400 }
       );
     }
@@ -123,10 +123,10 @@ export async function POST(req: NextRequest) {
       title,
       slug,
       caption,
-      description,
+      description: description || caption || "",
       category: category || "Commercial",
       clientName: clientName || "",
-      year: year || "2025",
+      year: year || "",
       videoUrl: finalVideoUrl,
       thumbnailUrl: finalThumbnail,
       cloudinaryPublicId: cloudinaryPublicId || "",

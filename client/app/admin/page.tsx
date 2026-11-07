@@ -423,22 +423,12 @@ export default function AdminDashboardPage() {
                           <span className="text-[#F5D90A] px-2 py-0.5 rounded bg-[#F5D90A]/10 border border-[#F5D90A]/20">
                             {project.category}
                           </span>
-                          {project.clientName && (
+                          {project.caption && (
                             <>
                               <span>&bull;</span>
-                              <span>{project.clientName}</span>
-                            </>
-                          )}
-                          {project.year && (
-                            <>
-                              <span>&bull;</span>
-                              <span>{project.year}</span>
-                            </>
-                          )}
-                          {project.aspectRatio && (
-                            <>
-                              <span>&bull;</span>
-                              <span className="text-zinc-500">{project.aspectRatio}</span>
+                              <span className="truncate max-w-[280px] sm:max-w-[420px] text-zinc-400">
+                                {project.caption}
+                              </span>
                             </>
                           )}
                         </div>

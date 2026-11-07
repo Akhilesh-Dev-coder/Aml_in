@@ -4,7 +4,7 @@ export interface IProjectDocument extends Document {
   title: string;
   slug: string;
   caption: string;
-  description: string;
+  description?: string;
   category: "Commercial" | "Product Film" | "Brand Campaign" | "Cinematic Visual" | "Social Creative";
   clientName?: string;
   year?: string;
@@ -15,9 +15,9 @@ export interface IProjectDocument extends Document {
   featured: boolean;
   published: boolean;
   order: number;
-  tags: string[];
+  tags?: string[];
   duration?: string;
-  aspectRatio: "16:9" | "9:16" | "4:5" | "1:1";
+  aspectRatio?: "16:9" | "9:16" | "4:5" | "1:1";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -45,7 +45,8 @@ const ProjectSchema = new Schema<IProjectDocument>(
     },
     description: {
       type: String,
-      required: [true, "Project description is required"],
+      required: false,
+      default: "",
       trim: true,
     },
     category: {

@@ -751,9 +751,11 @@ export default function ProjectShowcaseView({
                 {activeProject.caption}
               </p>
 
-              <p className="text-xs text-zinc-300 font-light leading-relaxed mb-6">
-                {activeProject.description}
-              </p>
+              {activeProject.description && (
+                <p className="text-xs text-zinc-300 font-light leading-relaxed mb-6">
+                  {activeProject.description}
+                </p>
+              )}
 
               {activeProject.clientName && (
                 <div className="flex items-center justify-between text-xs font-mono py-2.5 border-b border-white/[0.06]">
@@ -1108,40 +1110,46 @@ export default function ProjectShowcaseView({
                     {activeProject.caption}
                   </p>
 
-                  <p className="text-xs sm:text-sm text-zinc-300 font-light leading-relaxed">
-                    {activeProject.description}
-                  </p>
+                  {activeProject.description && (
+                    <p className="text-xs sm:text-sm text-zinc-300 font-light leading-relaxed">
+                      {activeProject.description}
+                    </p>
+                  )}
                 </div>
 
                 {/* Right Meta Column */}
-                <div className="flex flex-col gap-3 lg:max-w-xs shrink-0 lg:border-l lg:border-white/10 lg:pl-6">
-                  {activeProject.clientName && (
-                    <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
-                      <Building2 className="w-3.5 h-3.5 text-zinc-500" />
-                      <span>Client: {activeProject.clientName}</span>
-                    </div>
-                  )}
+                {(activeProject.clientName ||
+                  activeProject.year ||
+                  (activeProject.tags && activeProject.tags.length > 0)) && (
+                  <div className="flex flex-col gap-3 lg:max-w-xs shrink-0 lg:border-l lg:border-white/10 lg:pl-6">
+                    {activeProject.clientName && (
+                      <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
+                        <Building2 className="w-3.5 h-3.5 text-zinc-500" />
+                        <span>Client: {activeProject.clientName}</span>
+                      </div>
+                    )}
 
-                  {activeProject.year && (
-                    <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
-                      <Calendar className="w-3.5 h-3.5 text-zinc-500" />
-                      <span>Release: {activeProject.year}</span>
-                    </div>
-                  )}
+                    {activeProject.year && (
+                      <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
+                        <Calendar className="w-3.5 h-3.5 text-zinc-500" />
+                        <span>Release: {activeProject.year}</span>
+                      </div>
+                    )}
 
-                  {activeProject.tags && activeProject.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-2">
-                      {activeProject.tags.map((t) => (
-                        <span
-                          key={t}
-                          className="text-[11px] font-mono px-2 py-0.5 rounded bg-white/5 border border-white/10 text-zinc-400"
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                    {activeProject.tags && activeProject.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pt-2">
+                        {activeProject.tags.map((t) => (
+                          <span
+                            key={t}
+                            className="text-[11px] font-mono px-2 py-0.5 rounded bg-white/5 border border-white/10 text-zinc-400"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
