@@ -5,7 +5,7 @@ export interface IProjectDocument extends Document {
   slug: string;
   caption: string;
   description?: string;
-  category: "Commercial" | "Product Film" | "Brand Campaign" | "Cinematic Visual" | "Social Creative";
+  category: string;
   clientName?: string;
   year?: string;
   videoUrl: string;
@@ -52,7 +52,7 @@ const ProjectSchema = new Schema<IProjectDocument>(
     category: {
       type: String,
       required: [true, "Category is required"],
-      enum: ["Commercial", "Product Film", "Brand Campaign", "Cinematic Visual", "Social Creative"],
+      trim: true,
       default: "Commercial",
     },
     clientName: {

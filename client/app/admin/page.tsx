@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { IProject } from "@/types/project";
+import { IProject, ICategory } from "@/types/project";
 import ProjectFormModal from "./ProjectFormModal";
+import CategoryManagementModal from "./CategoryManagementModal";
 import {
   Plus,
   ArrowUpRight,
@@ -21,25 +22,21 @@ import {
   CheckCircle2,
   AlertCircle,
   Filter,
+  FolderKanban,
 } from "lucide-react";
-
-const CATEGORIES: Array<IProject["category"]> = [
-  "Commercial",
-  "Product Film",
-  "Brand Campaign",
-  "Cinematic Visual",
-  "Social Creative",
-];
 
 export default function AdminDashboardPage() {
   const router = useRouter();
   const [projects, setProjects] = useState<IProject[]>([]);
+  const [categories, setCategories] = useState<ICategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [error, setError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<IProject | null>(null);
   const [actionSuccess, setActionSuccess] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<"All" | IProject["category"]>("All");
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -60,9 +57,41 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const fetchCategories = async () => {
+    setCategoriesLoading(true);
+    try {
+      const res = await fetch("/api/admin/categories");
+      if (res.status === 401) {
+        router.push("/admin/login");
+        return;
+      }
+      const data = await res.json();
+      if (data.categories) {
+        setCategories(data.categories);
+      }
+    } catch (err: any) {
+      console.error("Failed to load categories:", err);
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchProjects();
+    fetchCategories();
   }, []);
+
+  // Ensure selectedCategory resets to "All" if it was deleted or is missing
+  useEffect(() => {
+    if (selectedCategory !== "All" && categories.length > 0) {
+      const exists = categories.some(
+        (c) => c.name.toLowerCase() === selectedCategory.toLowerCase()
+      );
+      if (!exists) {
+        setSelectedCategory("All");
+      }
+    }
+  }, [categories, selectedCategory]);
 
   const showNotification = (msg: string) => {
     setActionSuccess(msg);
@@ -162,10 +191,11 @@ export default function AdminDashboardPage() {
   // Filter projects by active category
   const filteredProjects = selectedCategory === "All"
     ? projects
-    : projects.filter((p) => p.category === selectedCategory);
+    : projects.filter((p) => p.category?.toLowerCase() === selectedCategory.toLowerCase());
 
   const totalProjects = projects.length;
   const publishedCount = projects.filter((p) => p.published).length;
+  const totalCategories = categories.length;
 
   return (
     <div className="min-h-screen bg-[#080808] text-white">
@@ -204,7 +234,7 @@ export default function AdminDashboardPage() {
 
             <button
               onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono text-zinc-400 hover:text-white transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono text-zinc-400 hover:text-white transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Logout</span>
@@ -231,24 +261,37 @@ export default function AdminDashboardPage() {
               Commercial Portfolio Management
             </h1>
             <p className="text-xs sm:text-sm text-zinc-400 font-mono">
-              Arrange and reorder commercial reels by category &bull; Zero thumbnail upload required
+              Arrange and reorder commercial reels &bull; Manage categories &amp; titles &bull; Zero thumbnail upload required
             </p>
           </div>
 
-          <button
-            onClick={() => {
-              setEditingProject(null);
-              setModalOpen(true);
-            }}
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#F5D90A] hover:bg-[#e5ca09] text-black font-semibold text-xs uppercase font-mono tracking-wider transition-all duration-300 hover:scale-[1.02] shadow-[0_0_20px_rgba(245,217,10,0.25)] cursor-pointer"
-          >
-            <Plus className="w-4 h-4 stroke-[3]" />
-            <span>Add New Project</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setCategoryModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-3 rounded-2xl bg-[#181818] hover:bg-[#222222] border border-white/10 hover:border-[#F5D90A]/40 text-white font-mono text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md"
+            >
+              <FolderKanban className="w-4 h-4 text-[#F5D90A]" />
+              <span>Manage Categories</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 font-bold text-zinc-300">
+                {totalCategories}
+              </span>
+            </button>
+
+            <button
+              onClick={() => {
+                setEditingProject(null);
+                setModalOpen(true);
+              }}
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#F5D90A] hover:bg-[#e5ca09] text-black font-semibold text-xs uppercase font-mono tracking-wider transition-all duration-300 hover:scale-[1.02] shadow-[0_0_20px_rgba(245,217,10,0.25)] cursor-pointer"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>Add New Project</span>
+            </button>
+          </div>
         </div>
 
-        {/* Overview Metric Cards (2 Clean Cards) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        {/* Overview Metric Cards (3 Clean Cards) */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <div className="p-5 rounded-2xl bg-[#141414] border border-white/[0.08] flex items-center justify-between">
             <div>
               <span className="text-xs uppercase font-mono tracking-wider text-zinc-500 block mb-1">
@@ -276,6 +319,23 @@ export default function AdminDashboardPage() {
               <Eye className="w-5 h-5" />
             </div>
           </div>
+
+          <div
+            onClick={() => setCategoryModalOpen(true)}
+            className="p-5 rounded-2xl bg-[#141414] border border-white/[0.08] hover:border-[#F5D90A]/40 transition-colors flex items-center justify-between cursor-pointer group"
+          >
+            <div>
+              <span className="text-xs uppercase font-mono tracking-wider text-zinc-500 block mb-1 group-hover:text-zinc-300 transition-colors">
+                Categories
+              </span>
+              <span className="text-3xl font-light font-mono text-white group-hover:text-[#F5D90A] transition-colors">
+                {totalCategories}
+              </span>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 group-hover:border-[#F5D90A]/30 group-hover:bg-[#F5D90A]/10 flex items-center justify-center text-zinc-300 group-hover:text-[#F5D90A] transition-colors">
+              <FolderKanban className="w-5 h-5" />
+            </div>
+          </div>
         </div>
 
         {/* Category Tabs: Easily arrange & filter for each category */}
@@ -287,7 +347,7 @@ export default function AdminDashboardPage() {
 
           <button
             onClick={() => setSelectedCategory("All")}
-            className={`px-3.5 py-2 rounded-xl text-xs font-mono tracking-wider uppercase transition-all ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-mono tracking-wider uppercase transition-all cursor-pointer ${
               selectedCategory === "All"
                 ? "bg-[#F5D90A] text-black font-semibold shadow-[0_0_15px_rgba(245,217,10,0.3)]"
                 : "bg-white/[0.04] text-zinc-400 hover:text-white hover:bg-white/[0.08] border border-white/[0.08]"
@@ -296,20 +356,21 @@ export default function AdminDashboardPage() {
             All Categories ({projects.length})
           </button>
 
-          {CATEGORIES.map((cat) => {
-            const count = projects.filter((p) => p.category === cat).length;
-            const isActive = selectedCategory === cat;
+          {categories.map((cat) => {
+            const catName = cat.name;
+            const count = projects.filter((p) => p.category?.toLowerCase() === catName.toLowerCase()).length;
+            const isActive = selectedCategory.toLowerCase() === catName.toLowerCase();
             return (
               <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-mono tracking-wider uppercase transition-all flex items-center gap-1.5 ${
+                key={cat._id || cat.id || catName}
+                onClick={() => setSelectedCategory(catName)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-mono tracking-wider uppercase transition-all flex items-center gap-1.5 cursor-pointer ${
                   isActive
                     ? "bg-[#F5D90A] text-black font-semibold shadow-[0_0_15px_rgba(245,217,10,0.3)]"
                     : "bg-white/[0.04] text-zinc-400 hover:text-white hover:bg-white/[0.08] border border-white/[0.08]"
                 }`}
               >
-                <span>{cat}</span>
+                <span>{catName}</span>
                 <span
                   className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
                     isActive ? "bg-black/20 text-black" : "bg-white/10 text-zinc-400"
@@ -320,6 +381,15 @@ export default function AdminDashboardPage() {
               </button>
             );
           })}
+
+          <button
+            onClick={() => setCategoryModalOpen(true)}
+            className="px-3.5 py-2 rounded-xl text-xs font-mono tracking-wider uppercase bg-white/[0.03] text-zinc-400 hover:text-[#F5D90A] hover:bg-white/[0.07] border border-dashed border-white/20 hover:border-[#F5D90A]/40 flex items-center gap-1.5 transition-colors cursor-pointer ml-1"
+            title="Edit, Add or Delete Categories"
+          >
+            <Edit2 className="w-3 h-3 text-[#F5D90A]" />
+            <span>Manage Categories</span>
+          </button>
         </div>
 
         {/* Projects List / Table */}
@@ -499,9 +569,26 @@ export default function AdminDashboardPage() {
         onSaved={() => {
           showNotification(editingProject ? "Project updated successfully" : "Project created successfully");
           fetchProjects();
+          fetchCategories();
         }}
         projectToEdit={editingProject}
         defaultCategory={selectedCategory === "All" ? "Commercial" : selectedCategory}
+        availableCategories={categories}
+      />
+
+      {/* Category Management Modal */}
+      <CategoryManagementModal
+        isOpen={categoryModalOpen}
+        onClose={() => setCategoryModalOpen(false)}
+        categories={categories}
+        onCategoriesUpdated={(newCatName?: string) => {
+          fetchCategories();
+          fetchProjects();
+          if (newCatName) {
+            setSelectedCategory(newCatName);
+          }
+          router.refresh();
+        }}
       />
     </div>
   );

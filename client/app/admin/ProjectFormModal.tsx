@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { IProject } from "@/types/project";
-import { X, Upload, Check, AlertCircle, Loader2, Video, Image as ImageIcon, ChevronDown, ChevronUp } from "lucide-react";
+import { IProject, ICategory } from "@/types/project";
+import { X, Upload, Check, AlertCircle, Loader2, Video, Image as ImageIcon, ChevronDown, ChevronUp, Plus } from "lucide-react";
 import { getOptimizedVideoUrl, getOptimizedThumbnailUrl } from "@/lib/media";
 
 interface ProjectFormModalProps {
@@ -10,7 +10,8 @@ interface ProjectFormModalProps {
   onClose: () => void;
   onSaved: () => void;
   projectToEdit: IProject | null;
-  defaultCategory?: IProject["category"];
+  defaultCategory?: string;
+  availableCategories?: ICategory[];
 }
 
 export default function ProjectFormModal({
@@ -19,12 +20,15 @@ export default function ProjectFormModal({
   onSaved,
   projectToEdit,
   defaultCategory = "Commercial",
+  availableCategories = [],
 }: ProjectFormModalProps) {
   const isEditing = Boolean(projectToEdit && (projectToEdit._id || projectToEdit.id));
 
   const [title, setTitle] = useState("");
   const [caption, setCaption] = useState("");
-  const [category, setCategory] = useState<IProject["category"]>(defaultCategory);
+  const [category, setCategory] = useState<string>(defaultCategory);
+  const [customCategoryInput, setCustomCategoryInput] = useState("");
+  const [isAddingCustomCategory, setIsAddingCustomCategory] = useState(false);
   const [videoUrl, setVideoUrl] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [cloudinaryPublicId, setCloudinaryPublicId] = useState("");
@@ -40,6 +44,23 @@ export default function ProjectFormModal({
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const categoryOptions = React.useMemo(() => {
+    const names = new Set<string>();
+    if (availableCategories && availableCategories.length > 0) {
+      availableCategories.forEach((c) => {
+        if (c.name) names.add(c.name);
+      });
+    } else {
+      ["Commercial", "Product Film", "Brand Campaign", "Cinematic Visual", "Social Creative"].forEach((n) =>
+        names.add(n)
+      );
+    }
+    if (category && category.trim()) {
+      names.add(category.trim());
+    }
+    return Array.from(names);
+  }, [availableCategories, category]);
 
   useEffect(() => {
     if (projectToEdit) {
@@ -263,20 +284,60 @@ export default function ProjectFormModal({
             </div>
 
             <div className="sm:col-span-4">
-              <label className="block text-xs uppercase font-mono tracking-wider text-zinc-400 mb-2">
-                Category *
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value as any)}
-                className="w-full bg-[#1b1b1b] border border-white/10 focus:border-[#F5D90A] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none"
-              >
-                <option value="Commercial">Commercial</option>
-                <option value="Product Film">Product Film</option>
-                <option value="Brand Campaign">Brand Campaign</option>
-                <option value="Cinematic Visual">Cinematic Visual</option>
-                <option value="Social Creative">Social Creative</option>
-              </select>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs uppercase font-mono tracking-wider text-zinc-400">
+                  Category *
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsAddingCustomCategory(!isAddingCustomCategory)}
+                  className="text-[11px] font-mono text-[#F5D90A] hover:underline cursor-pointer flex items-center gap-1"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>{isAddingCustomCategory ? "Select list" : "+ New"}</span>
+                </button>
+              </div>
+
+              {isAddingCustomCategory ? (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={customCategoryInput}
+                    onChange={(e) => setCustomCategoryInput(e.target.value)}
+                    placeholder="New category..."
+                    className="flex-1 bg-[#1b1b1b] border border-[#F5D90A]/60 rounded-xl px-3 py-2 text-sm text-white focus:outline-none"
+                    onBlur={() => {
+                      if (customCategoryInput.trim()) {
+                        setCategory(customCategoryInput.trim());
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (customCategoryInput.trim()) {
+                        setCategory(customCategoryInput.trim());
+                        setIsAddingCustomCategory(false);
+                      }
+                    }}
+                    className="px-3 py-2 bg-[#F5D90A] text-black font-semibold text-xs font-mono rounded-xl shrink-0 cursor-pointer"
+                  >
+                    Set
+                  </button>
+                </div>
+              ) : (
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full bg-[#1b1b1b] border border-white/10 focus:border-[#F5D90A] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none cursor-pointer"
+                >
+                  {categoryOptions.map((catName) => (
+                    <option key={catName} value={catName}>
+                      {catName}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           </div>
 

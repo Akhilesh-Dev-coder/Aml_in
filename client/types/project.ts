@@ -5,7 +5,7 @@ export interface IProject {
   slug: string;
   caption: string;
   description?: string;
-  category: "Commercial" | "Product Film" | "Brand Campaign" | "Cinematic Visual" | "Social Creative";
+  category: string;
   clientName?: string;
   year?: string;
   videoUrl: string;
@@ -18,6 +18,18 @@ export interface IProject {
   tags?: string[];
   duration?: string;
   aspectRatio?: "16:9" | "9:16" | "4:5" | "1:1";
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ICategory {
+  _id?: string;
+  id?: string;
+  name: string;
+  slug: string;
+  order?: number;
+  description?: string;
+  projectCount?: number;
   createdAt?: string;
   updatedAt?: string;
 }

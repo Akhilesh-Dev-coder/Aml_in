@@ -7,7 +7,8 @@ import { INITIAL_PROJECTS } from "@/lib/initialData";
 import { IProject } from "@/types/project";
 import ProjectShowcaseView from "@/components/ProjectShowcaseView";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface PageProps {
   params: Promise<{ slug: string }>;

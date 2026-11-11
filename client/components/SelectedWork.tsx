@@ -2,12 +2,13 @@
 
 import React, { useState, useRef } from "react";
 import Link from "next/link";
-import { IProject } from "@/types/project";
+import { IProject, ICategory } from "@/types/project";
 import { Film, Play, ArrowUpRight } from "lucide-react";
 import { getOptimizedVideoUrl } from "@/lib/media";
 
 interface SelectedWorkProps {
   projects: IProject[];
+  categories?: ICategory[];
 }
 
 interface DisciplineConfig {
@@ -213,7 +214,36 @@ function DisciplineCard({
   );
 }
 
-export default function SelectedWork({ projects }: SelectedWorkProps) {
+export default function SelectedWork({ projects, categories = [] }: SelectedWorkProps) {
+  // Update the 5 fixed preset cards in place using the live categories from the database,
+  // strictly preserving the 2 + 3 grid layout, column spans, and visual structure.
+  const cards = DISCIPLINE_CARDS.map((config, index) => {
+    const dynamicCat = categories[index];
+    if (dynamicCat && dynamicCat.name) {
+      return {
+        ...config,
+        category: dynamicCat.name,
+        title: dynamicCat.name,
+      };
+    }
+    return config;
+  });
+
+  // If additional categories beyond 5 were created, append them in 3-column rows
+  const extraCards: DisciplineConfig[] = categories.slice(5).map((cat, extraIdx) => ({
+    id: cat._id || cat.id || `extra-cat-${extraIdx}`,
+    category: cat.name,
+    number: String(6 + extraIdx).padStart(2, "0"),
+    title: cat.name,
+    tagline: cat.description || "Curated Reel",
+    fallbackSlug: "selected-works",
+    fallbackPoster: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1600&auto=format&fit=crop",
+    fallbackVideo: "https://res.cloudinary.com/opkjlyme/video/upload/f_auto,q_auto,vc_auto,w_1920,c_limit/v1794014426/samples/cld-sample-video.mp4",
+    colSpan: "lg:col-span-4",
+  }));
+
+  const allCards = [...cards, ...extraCards];
+
   return (
     <section id="work" className="py-16 sm:py-24 lg:py-28 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
@@ -234,7 +264,7 @@ export default function SelectedWork({ projects }: SelectedWorkProps) {
           </div>
 
           <span className="text-xs font-mono text-zinc-400">
-            5 Categories &bull; Featured Works
+            {allCards.length} Categories &bull; Featured Works
           </span>
         </div>
 
@@ -242,9 +272,9 @@ export default function SelectedWork({ projects }: SelectedWorkProps) {
             DISCIPLINE CARDS GRID (2 + 3)
         ========================================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch">
-          {DISCIPLINE_CARDS.map((config) => (
+          {allCards.map((config) => (
             <DisciplineCard
-              key={config.id}
+              key={config.id || config.category}
               config={config}
               projects={projects}
             />
